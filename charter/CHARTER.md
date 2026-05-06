@@ -87,44 +87,41 @@ The WG will first survey existing trace models and conventions in this space, th
 
 The following focus groups address specific dimensions of agent behavior observability. Each builds on the Agent Behavior Trace Model and may form a sub-group with dedicated contributors.
 
-**1\. Multi-Agent Coordination**
+**1\. Observability of agentic systems (Orchestration & Coordination)**
 
-As agent teams, orchestration frameworks, and multi-agent architectures become mainstream, understanding behavior across agent boundaries is a top priority for AAIF member organizations.
+This focus group covers how agentic work is structured and handed across agents, services, tools, and people. It focuses on the observable boundaries that make delegated, distributed, or long-running execution understandable and traceable.
 
-- Delegation and hand-offs — tracing when one agent invokes another, what context is passed, and how results flow back.  
-- Cross-boundary context propagation — carrying trace context across agent, model, and framework boundaries, extending W3C Trace Context and OTel span links.  
-- Agent-to-agent communication — shared state, message passing, and causal links between agent actions in multi-agent workflows.  
-- Session and task continuity — maintaining observability when a task spans multiple agents or is handed off mid-execution.  
+- Delegation and hand-offs — tracing when work moves between agents, tools, services, workflows, or human reviewers, what context is passed, and how results flow back.  
+- Context propagation and correlation — carrying trace context across agent, model, tool, protocol, and framework boundaries, extending W3C Trace Context and OTel span links.  
+- Session and task continuity — maintaining observability when work spans multiple execution boundaries or resumes after interruption.  
 - Human-in-the-loop checkpoints — pause, approval, rejection, escalation, and resume semantics for long-running sessions involving human oversight.  
-- Responsibility-chain metadata — attribution for which agent or human initiated, delegated, approved, resumed, or modified an action across multi-party workflows.
+- Responsibility-chain metadata — attribution for which agent or human initiated, delegated, approved, resumed, executed, or modified an action.
 
-**2\. Tool & Skill Observability**
+**2\. LLM Primitive observability (Execution Surfaces)**
 
-Agents act on the world through tools and increasingly through skills — higher-level, composable capabilities that package intent, logic, and tool invocations into reusable units. As skill registries and marketplaces emerge across agent frameworks, observability of both the primitive (tool call) and the composed (skill execution) layers is essential for debugging, safety, and audit.
+This focus group covers the surfaces through which agent intent becomes an observable action: tools, skills, image ingestion, reasoning tokens and other agent-facing primitives exposed by models or frameworks. The goal is a common vocabulary for what was attempted, what was executed, what happened, and what external effects followed.
 
-- Tool intent and outcome — structured representation of what the agent requested, what the tool returned, and whether it succeeded.  
-- Side-effect attribution — externally visible state changes (files modified, APIs called, resources provisioned, messages sent) linked to the tool calls or skill executions that caused them.  
-- Retry and compensation — observable patterns when tools or skills fail and agents retry, fall back, or attempt to undo prior actions.  
-- Skill selection — observable records of which skill the agent chose, what alternatives were available, and what criteria drove the selection.  
-- Skill provenance — authorship, source registry, version, and trust chain for the skill that was executed. Unlike built-in tools, skills may come from third-party authors, marketplaces, or user-defined libraries — provenance metadata is essential for audit and supply-chain trust.  
-- Skill composition — tracing the internal structure of skill execution: which sub-skills and tools a skill invoked, in what order, and how data flowed between them.  
-- Skill impact — attributing outcomes and side effects to the skill level, not just individual tool calls, enabling evaluation of skill effectiveness and cost.
+- Tool, skill, and primitive execution — structured representation of what the agent invoked, including tool use, skill execution, structured actions, and modality-specific operations that shape agent behavior.  
+- Intent, outcome, and side-effect attribution — what the agent requested, what the execution surface returned, and what externally visible state changes resulted.  
+- Retry and fallback — observable patterns when execution fails, the agent retries, selects an alternative path, or attempts to undo prior actions.  
+- Skill selection, provenance, and composition — which capability was chosen, what alternatives existed, where it came from, and how sub-skills, tools, or other primitives were composed into a larger behavior.  
+- Skill-level impact — attributing outcomes, costs, and side effects to the composed capability level, not just to individual primitive calls.
 
 **3\. Protocol Observability**
 
-Agent protocols (MCP, A2A, and others) define how agents interact with tools, resources, and each other. Beyond observing these interactions, the ecosystem needs common conventions for how trace data itself is published and consumed — enabling experiment platforms, evaluation frameworks, and analysis tools to work with agent traces interchangeably.
+Protocols such as MCP, A2A, UCP, and others define how agents interact with tools, resources, and each other, and they create the boundaries across which trace data must remain coherent. This focus group covers both protocol-native observability and the conventions needed to make agent trace data portable across systems.
 
 - Protocol normalization — mapping protocol-specific operations into the common trace model while preserving protocol metadata.  
-- MCP and A2A interactions — conventions for tracing tool calls, resource reads, prompt gets, and agent-to-agent messages.  
-- Transport boundaries — maintaining trace context across protocol transport layers.  
+- MCP, A2A, UCP, and other protocol interactions — conventions for tracing tool calls, resource reads, prompt gets, and agent-to-agent or agent-to-system messages.  
+- Transport boundaries and context propagation — maintaining trace context across protocol and transport layers.  
 - Trace data interchange — common formats and conventions for exporting, publishing, and subscribing to agent trace data, so that downstream consumers (experiment runners, eval harnesses, dashboards, audit systems) can ingest traces without vendor-specific adapters.  
 - Alignment with existing telemetry pipelines — ensuring agent trace data can flow through established export paths (OTLP, logging pipelines) and that the WG coordinates with OTel and other bodies on any extensions needed to carry agent-specific semantics.
 
 Coordination with the MCP project and other protocol maintainers is handled through the WG's external liaison process (see Section 8).
 
-**4\. Agent State & Context**
+**4\. State & Context**
 
-Memory systems, context management, and persistent state are increasingly central to agent architectures — and the companies building them are distinct from those building the reasoning engines that consume them. This focus group addresses the observability of how information is stored, retrieved, assembled, and made available to agents.
+Engineering the context from various sources is key to using agentic systems. We want to understand how to trace and observe the sources and selection of context as well as the state held for agentic systems to work.
 
 - Memory access patterns — observable reads and writes to memory stores (short-term, long-term, episodic, semantic), without requiring exposure of the memory contents themselves.  
 - Context assembly — what information sources were consulted, what entered the agent's working context, and what was dropped or compacted.  
@@ -134,12 +131,12 @@ Memory systems, context management, and persistent state are increasingly centra
 
 **5\. Agentic Reasoning**
 
-As reasoning capabilities become a primary differentiator for LLMs and agent frameworks, observability of the reasoning process itself is a distinct concern from observability of the data it operates on. This focus group addresses how agents plan, evaluate, and reflect — the decision-making layer between receiving context and taking action.
+This focus group addresses the observability of agent decision-making: how agents plan, evaluate options, revise their approach, and explain key execution choices. The goal is to represent bounded reasoning artifacts and decision points in a structured way without requiring capture of raw chain-of-thought content or proprietary model internals.
 
-- Planning and decomposition — observable records of how agents break tasks into sub-tasks, form strategies, and sequence actions.  
-- Evaluation and selection — what options the agent considered, what criteria it applied, and why it chose a particular path.  
-- Reflection and self-correction — when agents assess their own outputs, detect errors, and revise their approach.  
-- Reasoning boundaries — structured representation of reasoning steps without mandating capture of proprietary model internals or raw chain-of-thought content. Agents and frameworks control what they choose to expose.
+- Planning and decomposition — observable records of how agents break tasks into sub-tasks, form strategies, and sequence actions.
+- Evaluation and selection — what options the agent considered, what criteria it applied, and why it chose a particular path.
+- Reflection and self-correction — when agents assess their own outputs, detect errors, and revise their approach.
+- Reasoning boundaries — structured representation of reasoning summaries, decision points, and rationale at meaningful execution boundaries, without mandating capture of private reasoning traces.
 
 ##### Adding Focus Groups
 
@@ -166,7 +163,7 @@ The WG charters focus groups by consensus. Expected future focus groups include 
 
 1. **Build observability products or platforms.** The WG produces standards, guidance, and reference implementations — not commercial or production-grade tooling.  
 2. **Define evaluation methodology.** The WG ensures the data model supports evaluation through metadata hooks, but does not define evaluation methodology, benchmarks, or scoring algorithms.  
-3. **Define agent runtime behavior.** How agents make decisions, manage context, or execute tools is the domain of agent frameworks and protocols (e.g., MCP, A2A). The WG standardizes how to *observe and record* that behavior, not how to *perform* it.  
+3. **Define agent runtime behavior.** How agents make decisions, manage context, or execute tools is the domain of agent frameworks and protocols. The WG standardizes how to *observe and record* that behavior, not how to *perform* it.  
 4. **Prescribe specific observability backends.** The WG's deliverables should be backend-agnostic, implementable with any compliant observability stack.  
 5. **Duplicate work being done in other standards bodies.** Where the OTel GenAI SIG or OWASP AOS is actively addressing a problem, the WG should coordinate and contribute rather than create competing specifications.  
 6. **Governance.** Deferred until liaison with the Governance Working Group is established to determine division of responsibilities.  
@@ -212,7 +209,7 @@ A deliverable is considered complete when:
 
 #### Success Metrics (KPIs)
 
-- **Coordination:** Active liaison relationships with at least 3 external standards bodies; at least one upstream contribution (PR, proposal, or joint deliverable) accepted within the first deliverable cycle.  
+- **Coordination:** Active liaison relationships with external standards bodies; upstream contributions (PR, proposal, or joint deliverable) accepted within the first deliverable cycle.  
 - **Adoption:** Use cases or deliverable reviews contributed by 10+ AAIF member organizations per deliverable cycle.  
 - **Community:** Regular meeting attendance from 5+ organizations; 10+ contributors across deliverables; at least 3 of the 5 focus groups have active leads and regular participation.  
 - **Quality:** All published deliverables (taxonomy, gap analysis, recommendation, white paper) reviewed by practitioners from multiple organizations, with feedback incorporated from at least one external standards body. Specifications, if produced, have at least one reference implementation.  
