@@ -8,10 +8,10 @@
 | :---- | :---- |
 | **Working Group Name** | Observability & Traceability |
 | **Short Name / Acronym** | OT-WG |
-| **Date Approved** | \[YYYY-MM-DD\] |
+| **Date Approved** | 2026-05-13 |
 | **Date Ratified by WG** | 2026-04-15 |
-| **Last Updated** | 2026-04-15 |
-| **Homepage / Repo** | \[TBD\] |
+| **Last Updated** | 2026-05-15 |
+| **Homepage / Repo** | [https://github.com/aaif/wg-observability-and-traceability/](https://github.com/aaif/wg-observability-and-traceability/) |
 | **Primary Contact (Chair/Lead)** | Pavan Sudheendra |
 
 ---
@@ -96,6 +96,7 @@ This focus group covers how agentic work is structured and handed across agents,
 - Session and task continuity — maintaining observability when work spans multiple execution boundaries or resumes after interruption.  
 - Human-in-the-loop checkpoints — pause, approval, rejection, escalation, and resume semantics for long-running sessions involving human oversight.  
 - Responsibility-chain metadata — attribution for which agent or human initiated, delegated, approved, resumed, executed, or modified an action.
+- Guardrails events and decisions
 
 **2\. LLM Primitive observability (Execution Surfaces)**
 
