@@ -1,6 +1,6 @@
 # Observability and Traceability Working Group
 
-For more information, review the [Working Group Charter document](charter/DRAFT.md).
+For more information, review the [Working Group Charter document](charter/CHARTER.md).
 
 ## Mission
 
