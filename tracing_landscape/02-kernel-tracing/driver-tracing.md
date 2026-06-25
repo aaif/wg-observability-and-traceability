@@ -86,6 +86,139 @@ This covers the mechanisms available for observing device driver behavior: how d
 
 ---
 
+## Observation Model: How Driver Tracing Works
+
+Linux driver tracing employs fundamentally different observation models depending on what is being observed. Unlike distributed tracing (spans) or application profiling (sampling), driver tracing captures **hardware state transitions** and **user-initiated I/O requests** through a mix of event recording, counter aggregation, and state snapshot mechanisms.
+
+### Observation Primitives
+
+| Model | Mechanism | What It Captures | Analogy |
+|-------|-----------|-----------------|---------|
+| **Discrete events** | TRACE_EVENT / tracepoints | Individual operations: register writes, IRQ arrivals, DMA completions | Similar to spans but without parent-child linkage |
+| **Performance counters** | Hardware PMU + perf_events | Aggregate hardware behavior: cache hits, bus transactions, PCIe TLPs | Statistical; no per-event detail |
+| **State snapshots** | debugfs reads, sysfs attributes | Point-in-time hardware register state, queue depths, firmware version | Not temporal; on-demand inspection |
+| **Continuous logs** | dev_dbg / dmesg / dynamic debug | Textual record of driver decisions and error paths | Printf-style logging |
+| **Post-mortem dumps** | devcoredump | Complete device/firmware state at crash time | Core dump equivalent |
+| **Protocol capture** | usbmon, blktrace | Full I/O transaction lifecycle with timestamps | Closest to network span tracing |
+
+### Hardware State vs. User State
+
+Driver tracing is distinctive because it observes **two domains simultaneously**:
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│  User State (software-initiated)                                 │
+│                                                                  │
+│  • Process issues read() syscall                                │
+│  • VFS routes to block layer                                    │
+│  • Block layer builds I/O request                               │
+│  • Driver submits command to hardware                           │
+│                                                                  │
+│  Traced via: syscall tracepoints, block tracepoints,            │
+│              driver TRACE_EVENTs, dev_dbg                        │
+│  Identity: PID, process name, cgroup, namespace                 │
+├─────────────────────────────────────────────────────────────────┤
+│  Hardware State (device-initiated or device-internal)            │
+│                                                                  │
+│  • Device raises interrupt (completion, error, hotplug)         │
+│  • DMA engine completes transfer                                │
+│  • Firmware reports status change                               │
+│  • Hardware counter increments (error count, temperature)       │
+│  • Link state changes (PCIe, USB, network)                      │
+│                                                                  │
+│  Traced via: IRQ tracepoints, regmap events, debugfs reads,     │
+│              hardware performance counters, devcoredump          │
+│  Identity: device (bus:slot.func), IRQ number, DMA channel      │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+**User state** is tracked per-process: which PID requested what I/O, when it was submitted, and when the response arrived. This enables latency attribution back to the requesting application.
+
+**Hardware state** is tracked per-device: register values, interrupt counts, error flags, link status, firmware health. This is independent of any user process — hardware events fire asynchronously (interrupts, DMA completions, hotplug, thermal throttling).
+
+The key insight for driver tracing is that **most interesting bugs occur at the boundary** between these two domains — where user expectations (submit I/O, expect completion within N ms) meet hardware reality (device hung, firmware crashed, link dropped).
+
+### Event Model (Not Spans)
+
+Driver tracing does **not** use the span/trace-context model from distributed tracing. Instead:
+
+- **Events are independent**: Each tracepoint event is self-contained with timestamp, device, and payload. No parent-child relationship is encoded.
+- **Correlation is implicit**: Events are correlated by timestamp proximity, device identity, and shared fields (e.g., request tag, sector number, USB URB pointer).
+- **Lifecycle is multi-event**: An I/O operation's lifecycle is reconstructed from multiple independent events (queued → dispatched → completed), not from a single span with start/end.
+
+Example — a block I/O lifecycle as independent events:
+
+```
+Event 1: block_rq_issue   (sector=2048, dev=sda, pid=4521)  t=0.000ms
+Event 2: nvme_sq_entry    (qid=3, cid=42, opcode=READ)      t=0.005ms
+Event 3: [hardware processes command — no event]
+Event 4: nvme_cq_entry    (qid=3, cid=42, status=0)         t=0.234ms
+Event 5: block_rq_complete(sector=2048, dev=sda, errors=0)   t=0.240ms
+```
+
+No span ID links these events. Correlation requires matching on sector number, command ID, or timestamp ordering.
+
+### Performance Counter Model
+
+For aggregate hardware behavior, driver tracing uses **counters** rather than events:
+
+```bash
+# NVMe device statistics (hardware counters exposed via sysfs)
+cat /sys/block/nvme0n1/device/device/smart_log
+# or via nvme-cli:
+nvme smart-log /dev/nvme0n1
+
+# Network interface hardware counters
+ethtool -S eth0 | head -10
+#   rx_packets: 12345678
+#   tx_packets: 9876543
+#   rx_crc_errors: 0
+#   rx_missed_errors: 3
+#   tx_timeout_count: 0
+
+# PCIe AER (Advanced Error Reporting) counters
+cat /sys/bus/pci/devices/0000:03:00.0/aer_dev_correctable
+#   RxErr 0
+#   BadTLP 0
+#   BadDLLP 0
+#   Rollover 0
+#   Timeout 2
+#   NonFatalErr 0
+
+# GPU (i915) performance counters via perf
+perf stat -e i915/actual-frequency/ -e i915/rcs0-busy/ -a sleep 5
+```
+
+These counters track **hardware state that accumulates over time** — not individual events. They answer "how much" and "how often" rather than "what happened at time T."
+
+### State Snapshot Model
+
+Some driver observation is neither event nor counter but **instantaneous state inspection**:
+
+```bash
+# GPU engine state (what's running right now?)
+cat /sys/kernel/debug/dri/0/i915_engine_info
+
+# NVMe controller registers
+cat /sys/kernel/debug/nvme0/registers
+
+# USB device descriptor (current configuration)
+lsusb -v -d 1234:5678
+
+# Network interface link state
+cat /sys/class/net/eth0/carrier        # 1=up, 0=down
+cat /sys/class/net/eth0/speed          # Mbps
+cat /sys/class/net/eth0/operstate      # up/down/dormant
+
+# Thermal zone state
+cat /sys/class/thermal/thermal_zone0/temp  # millidegrees C
+cat /sys/class/thermal/thermal_zone0/mode  # enabled/disabled
+```
+
+These are **not traced** — they are polled on demand. They represent the device's state at the instant of the read. For time-series tracking, external tooling must poll and record these values.
+
+---
+
 ## Instrumentation Walkthrough
 
 ### 1. Structured Device Logging (dev_dbg / dev_info / dev_err)
