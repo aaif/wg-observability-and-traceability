@@ -38,6 +38,7 @@ The encoding and comparative context that all tracing systems build upon.
 |----------|---------|-------------|
 | [ctf.md](01-foundations/ctf.md) | Common Trace Format | Self-describing binary format for zero-copy, nanosecond-precision traces |
 | [linux-tracing-comparison.md](01-foundations/linux-tracing-comparison.md) | LTTng vs perf vs FTrace | Comparative assessment across AAIF dimensions; each excels differently |
+| [trace-compass.md](01-foundations/trace-compass.md) | Eclipse Trace Compass + Incubator | Multi-format analysis framework: correlates kernel, GPU, network, and AI traces via state system; convex hull sync for cloud |
 
 ### 02 — Kernel Tracing
 
@@ -81,6 +82,9 @@ How AI agents expose their runtime behavior — the application-level telemetry 
 | [AAIF-REF-ARCH-GOOSE.md](05-ai-agent-observability/AAIF-REF-ARCH-GOOSE.md) | Goose (agent runtime) | Full agent framework: triple telemetry pipeline, security scanning, MCP extensions |
 | [AAIF-REF-ARCH-LANGFUSE.md](05-ai-agent-observability/AAIF-REF-ARCH-LANGFUSE.md) | Langfuse | LLM tracing platform: hierarchical traces of agent execution with timing and metadata |
 | [AAIF-REF-ARCH-POSTHOG.md](05-ai-agent-observability/AAIF-REF-ARCH-POSTHOG.md) | PostHog | Product analytics: adoption tracking with privacy-preserving event collection |
+| [AAIF-REF-ARCH-TMLL.md](05-ai-agent-observability/AAIF-REF-ARCH-TMLL.md) | TMLL | ML-enhanced trace analysis via TSP; MCP server exposes anomaly detection to AI agents |
+| [AAIF-REF-ARCH-OTEL.md](05-ai-agent-observability/AAIF-REF-ARCH-OTEL.md) | OpenTelemetry | Vendor-neutral observability framework: traces, metrics, logs with gen_ai.* semantic conventions |
+| [AAIF-REF-ARCH-DATADOG.md](05-ai-agent-observability/AAIF-REF-ARCH-DATADOG.md) | Datadog | Full-stack SaaS platform: LLM Observability with agent/workflow/tool/llm span types |
 
 ## Reading Order
 
