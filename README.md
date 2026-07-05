@@ -2,6 +2,8 @@
 
 For more information, review the [Working Group Charter document](charter/CHARTER.md).
 
+New contributors can start with the [Contributor Onboarding guide](CONTRIBUTOR_ONBOARDING.md) for the current work queue, focus-area entry points, and first-contribution checklist.
+
 ## Mission
 
 The Observability & Traceability Working Group advances the Agentic AI Foundation's mission by convening practitioners, vendors, and standards bodies to build a shared understanding of agent observability — aligning existing efforts, identifying gaps, and producing guidance or specifications only where no existing body is addressing the need. The working group focuses on the intersection of agent behavior, reasoning, and execution with observable signals and trace structures, with a particular emphasis on interoperability across frameworks and tools.
