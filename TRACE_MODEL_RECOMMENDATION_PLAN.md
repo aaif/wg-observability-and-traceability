@@ -109,6 +109,17 @@ The final recommendation should be concise and reviewable.
 
 Target milestone: October 2026, matching the charter's planned Agent Behavior Trace Model Recommendation target.
 
+## Review Checklist For Chairs And Focus Leads
+
+Use this checklist before turning the plan into a recommendation draft.
+
+- Confirm that every candidate model has a named source and comparison reason.
+- Confirm that each evaluation criterion maps to a charter goal, use case, or cross-WG concern.
+- Confirm that missing inputs are marked explicitly rather than filled with assumptions.
+- Confirm that upstream-extension options are considered before proposing a new AAIF artifact.
+- Confirm that the recommendation can be reviewed without private member data or vendor-specific trace backends.
+- Confirm that any reasoning or decision metadata avoids raw chain-of-thought capture requirements.
+
 ## Non-Goals
 
 - This plan does not choose a trace model.
