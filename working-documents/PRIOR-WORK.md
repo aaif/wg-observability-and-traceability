@@ -2,7 +2,7 @@
 
 **AAIF Observability Working Group - Landscape Survey**
 **Initial draft:** 2026-03-15
-**Status:** Living working group document - last reviewed 2026-06-16
+**Status:** Living working group document - last reviewed 2026-07-08
 
 ---
 
