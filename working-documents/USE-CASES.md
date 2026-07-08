@@ -128,7 +128,7 @@ Each use case follows a consistent structure:
 
 **What data is required:** Task outcome labels (success/failure/partial), quality scores (human or automated), task type classification, model and configuration metadata, temporal tracking.
 
-**Current state:** Evaluation platforms (LangSmith, Phoenix, Braintrust) each have their own approaches. Gap: no standard format for evaluation labels that's portable across tools.
+**Current state:** Evaluation platforms (LangSmith, Phoenix, Braintrust) each have their own approaches. OTel GenAI defines [`gen_ai.evaluation.result` events](https://github.com/open-telemetry/semantic-conventions-genai/blob/main/docs/gen-ai/gen-ai-events.md#event-gen_aievaluationresult) as relevant prior art for recording evaluation results alongside traces. Gap: no broadly adopted standard format for portable evaluation labels and results across tools.
 
 #### D2. Regression detection
 
@@ -142,13 +142,13 @@ Each use case follows a consistent structure:
 
 #### D3. Comparison across models/configurations
 
-**Description:** A/B testing agent configurations - different models, prompts, tool sets, or architectures - and comparing outcomes on equivalent tasks.
+**Description:** A/B testing agent configurations - different models, prompts, tool sets, or architectures - and comparing outcomes on equivalent tasks. This includes metrics-driven development workflows where teams rerun benchmarks, simulations, or automated tests against candidate changes before production rollout.
 
 **Target audience:** ML engineers, researchers, developers optimizing agent systems.
 
-**What data is required:** Controlled experiment metadata, task-level outcomes, cost data, all linked to configuration parameters.
+**What data is required:** Controlled experiment metadata, task-level outcomes, cost data, confidence or sample-size metadata where available, benchmark run identifiers, and configuration parameters.
 
-**Current state:** Ad-hoc. Each team builds their own comparison infrastructure.
+**Current state:** Ad-hoc. Each team builds their own comparison infrastructure. Gap: no common way to represent benchmark reruns, A/B-style comparisons, low-confidence simulation results, and production outcome comparisons in one portable observability format.
 
 ---
 
@@ -162,7 +162,7 @@ Each use case follows a consistent structure:
 
 **What data is required:** Tool call inputs and outputs with enough detail to understand the real-world impact. Not just "the agent called the file_write tool" but "the agent wrote to /etc/nginx/nginx.conf and reloaded nginx."
 
-**Current state:** Tool call tracing captures inputs/outputs. Gap: modeling the side effects (world-state changes) as first-class data rather than requiring consumers to parse tool outputs.
+**Current state:** Tool call tracing captures inputs/outputs. Gap: modeling the side effects (world-state changes) as first-class data rather than requiring consumers to parse tool outputs. For security, safety, and compliance, agent-produced telemetry may not be sufficient; sandbox, gateway, operating-system, network, or environment-derived telemetry may be needed as a more trustworthy source of world-state changes.
 
 #### E2. Did the agent exceed its authorized scope?
 
@@ -172,7 +172,7 @@ Each use case follows a consistent structure:
 
 **What data is required:** Complete record of all tool calls, permission decisions (what was requested vs. what was granted), policy metadata (what the agent was authorized to do).
 
-**Current state:** Most agent frameworks have permission systems, but there's no standard for logging permission decisions alongside agent traces. This data exists but isn't standardized.
+**Current state:** Most agent frameworks have permission systems, but there's no standard for logging permission decisions alongside agent traces. [OCSF](https://schema.ocsf.io/) is relevant prior art for security event modeling, but agent-specific scope and policy decisions are not yet standardized.
 
 #### E3. Audit trail for regulated environments
 
@@ -180,9 +180,9 @@ Each use case follows a consistent structure:
 
 **Target audience:** Compliance teams in regulated industries (finance, healthcare, government), legal teams.
 
-**What data is required:** Immutable session records, user identity, approval chains, complete action logs, timestamps, data lineage.
+**What data is required:** Immutable session records, user identity, delegation-of-authority records, approval chains, human-in-the-loop checkpoints, policy-check outcomes, complete action logs, timestamps, data lineage, and enough evidence to satisfy audit-log requirements such as [EU AI Act Article 12](https://artificialintelligenceact.eu/article/12/).
 
-**Current state:** No standard addresses this specifically. Teams in regulated industries build bespoke solutions.
+**Current state:** No standard addresses this specifically. Teams in regulated industries build bespoke solutions. Relevant prior art includes the [IETF Agent Audit Trail draft](https://datatracker.ietf.org/doc/draft-sharif-agent-audit-trail/) and [OCSF](https://schema.ocsf.io/) for security/compliance event modeling, but the agent-specific audit trail remains an open gap.
 
 ---
 
@@ -196,7 +196,7 @@ Each use case follows a consistent structure:
 
 **What data is required:** Session-to-session linking (parent/child relationships), shared context tracking, delegation metadata (why this sub-agent was invoked, what it was asked to do).
 
-**Current state:** OTel distributed tracing provides the basic propagation model (trace context). The OTel #2664 proposal addresses agent teams. Gap: practical conventions for multi-agent tracing that work across frameworks.
+**Current state:** OTel distributed tracing provides the basic propagation model (trace context). The OTel #2664 proposal addresses agent teams. The [A2A traceability extension](https://github.com/a2aproject/a2a-samples/blob/main/extensions/traceability/v1/spec.md) is relevant prior art for propagating trace context across agent boundaries. Gap: practical conventions for multi-agent tracing that work across frameworks.
 
 #### F2. Understanding agent-to-agent communication
 
@@ -206,7 +206,7 @@ Each use case follows a consistent structure:
 
 **What data is required:** Inter-agent message content, shared state changes, causal links between agent actions.
 
-**Current state:** Largely unaddressed by existing specs. The OTel #2664 proposal's "team" concept is a starting point.
+**Current state:** Largely unaddressed by existing specs. The OTel #2664 proposal's "team" concept is a starting point, and the [A2A traceability extension](https://github.com/a2aproject/a2a-samples/blob/main/extensions/traceability/v1/spec.md) is relevant prior art for agent-to-agent communication semantics and trace propagation.
 
 ---
 
@@ -254,7 +254,7 @@ Each use case follows a consistent structure:
 
 **What data is required:** Complete input/output pairs with quality labels, tool use patterns with outcomes, human feedback signals. The format must be convertible to training data formats.
 
-**Current state:** No standard session format designed with training data extraction as a use case. Teams build bespoke pipelines.
+**Current state:** No standard session format designed with training data extraction as a use case. Teams build bespoke pipelines. [ATIF](https://github.com/harbor-framework/harbor/blob/main/rfcs/0001-trajectory-format.md) is relevant prior art for an interchangeable session-level trajectory format that could be derived from traces for training and evaluation workflows.
 
 #### H3. Benchmarking across implementations
 
@@ -264,7 +264,7 @@ Each use case follows a consistent structure:
 
 **What data is required:** Standardized task definitions, outcome measurements, cost data, and trajectory data - all in a common format that enables apples-to-apples comparison.
 
-**Current state:** SWE-bench and similar benchmarks exist for specific domains. Gap: no standard observability format that makes benchmark results comparable across implementations.
+**Current state:** SWE-bench and similar benchmarks exist for specific domains, and projects such as [Exgentic](https://github.com/Exgentic/exgentic/) are relevant implementation references for cross-implementation benchmarking. Gap: no standard observability format that makes benchmark results comparable across implementations.
 
 ---
 
