@@ -8,12 +8,14 @@ New or returning contributors can get oriented from these links:
 
 - [Charter](charter/CHARTER.md) - mission, scope, deliverables, governance, and external coordination model.
 - [Working Methods](WORKING-METHODS.md) - how the WG tracks work, records decisions, reviews PRs, and keeps status discoverable.
+- [Prior work survey](working-documents/PRIOR-WORK.md) - current landscape survey for agent observability standards, tools, and adjacent efforts.
+- [Use cases](working-documents/USE-CASES.md) - shared inventory of why practitioners need agent observability and traceability.
 - [Open issues](https://github.com/aaif/wg-observability-and-traceability/issues) - current work items, coordination threads, and next steps.
 - [Open pull requests](https://github.com/aaif/wg-observability-and-traceability/pulls) - documents and changes currently under review.
 - [Meeting minutes](meeting-minutes/) - published summaries and action items.
 - [Reporting template](reporting/TEMPLATE.md) - monthly TC reporting format.
 
-If you want to help, start with the open issues. Each active issue should identify the expected outcome, owner or `needs owner`, current status, next step, and related links.
+If you want to help, start with the open issues. Each active issue should identify the expected outcome, owner or `needs owner`, current status, next step, related links, and whether help is wanted.
 
 GitHub issues are the source of truth for durable status. Meeting notes, Slack, Discord, Google Docs, and email should link back to issues or PRs when they create or update work.
 
