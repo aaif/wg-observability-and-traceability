@@ -2,7 +2,7 @@
 
 **AAIF Observability Working Group**
 **Date:** 2026-03-15
-**Status:** Living document - contributions welcome
+**Status:** Living document - last reviewed 2026-07-08; contributions welcome
 
 ---
 
