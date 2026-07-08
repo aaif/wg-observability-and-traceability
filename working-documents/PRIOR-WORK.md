@@ -30,6 +30,7 @@ This refresh keeps the March 2026 landscape structure but updates the areas wher
 - **AOS has a clearer specification surface.** The AOS site now separates Instrument, Trace, and Inspect specs, including MCP/A2A instrumentation, OpenTelemetry and OCSF trace mappings, and AgBOM mappings to CycloneDX/SPDX/SWID.
 - **AGNTCY Observe is worth tracking closely.** The Observe SDK docs describe an OTel-aligned multi-agent observability schema, protocol instrumentation for A2A, SLIM, and MCP, and end-to-end trace recomposition across agent boundaries. The `agntcy/observe` repo has published `sdk-v1.0.42`.
 - **Implementation ecosystems are still moving quickly.** Monocle reached v0.8.4 in June 2026. OpenInference, Langfuse, Helicone, and related observability platforms continue to evolve rapidly, reinforcing that this document needs periodic refreshes rather than one-time publication.
+- **Environment-derived telemetry is relevant to agent observability.** OTel's eBPF instrumentation work, including OBI, is not GenAI-specific but can provide trusted network and runtime signals that complement telemetry emitted by agents or frameworks.
 - **Academic work is shifting toward security and governance.** Recent 2026 papers frame agent observability as a substrate for continuous security monitoring and closed-loop governance, not only debugging and evaluation.
 
 ## Summary Table
@@ -51,6 +52,8 @@ This refresh keeps the March 2026 landscape structure but updates the areas wher
 | **Monocle (LF AI & Data)** | GenAI auto-instrumentation framework | Early, active (v0.8.4) | Open (Apache 2.0) | Broadest framework auto-instrumentation |
 | **AGNTCY** | Multi-agent interop + observability | Active; Observe SDK 1.0.x | Open (Apache 2.0) | Cross-agent context propagation |
 | **OpenLIT** | OTel-native LLM observability | Production | Open | Follows OTel semconv closely |
+| **OBI / OTel eBPF instrumentation** | Network/runtime instrumentation signals | Active OTel effort | Open | Trusted environment-derived telemetry |
+| **ATIF trajectory format** | Session-level trajectory artifact | RFC/proposal | Open | Interchangeable trajectory data for eval/training/replay |
 
 ---
 
@@ -261,6 +264,8 @@ This refresh keeps the March 2026 landscape structure but updates the areas wher
 
 **Maturity:** Production use. Actively maintained, used by Arize Phoenix and integrated with multiple frameworks (LangChain, LlamaIndex, DSPy, OpenAI Agents SDK, Claude Agent SDK, AWS Strands Agents, etc.). As of 2026-06-16, the `Arize-ai/openinference` repo had 1,029 stars and had published a new Strands Agents instrumentation release on 2026-06-11.
 
+**Standards convergence:** Arize has donated OpenInference work toward OpenTelemetry GenAI convergence. This makes OpenInference both useful prior art and an active input to the longer-term OTel GenAI standardization path.
+
 **Strengths:**
 - Battle-tested in production observability workflows
 - Broader span kind vocabulary than OTel GenAI semconv (GUARDRAIL, EVALUATOR, RERANKER are valuable additions)
@@ -279,6 +284,7 @@ This refresh keeps the March 2026 landscape structure but updates the areas wher
 **References:**
 - [GitHub: Arize-ai/openinference](https://github.com/Arize-ai/openinference)
 - [OpenInference Semantic Conventions spec](https://arize-ai.github.io/openinference/spec/semantic_conventions.html)
+- [OTel community issue: OpenInference donation](https://github.com/open-telemetry/community/issues/3467)
 
 ---
 
@@ -286,7 +292,7 @@ This refresh keeps the March 2026 landscape structure but updates the areas wher
 
 **What it is:** An open-source extension to OpenTelemetry providing instrumentation libraries for LLM providers (OpenAI, Anthropic, Cohere, etc.) and vector databases (Pinecone, Chroma, Qdrant, Weaviate). Available in Python and TypeScript.
 
-**Maturity:** Production use. Integrates with Datadog, New Relic, Sentry, Honeycomb, and other backends.
+**Maturity:** Production use. Integrates with Datadog, New Relic, Sentry, Honeycomb, and other backends. Traceloop is now part of ServiceNow, which may affect future project direction and should be tracked in later refreshes.
 
 **Strengths:**
 - Broadest provider coverage of any open instrumentation library
@@ -507,19 +513,25 @@ These represent the startup wave in agent observability. Each has a distinct ang
 
 ---
 
-### 16. Adjacent Standards (CloudEvents, OpenLineage)
+### 16. Adjacent Standards and Formats (CloudEvents, OpenLineage, OBI, ATIF)
 
-These are not agent observability specifications, but they operate in adjacent layers that the WG should be aware of.
+These are not all agent observability specifications, but they operate in adjacent layers that the WG should be aware of.
 
 **CloudEvents (CNCF, Graduated):** A vendor-neutral envelope format for event data, standardizing how event metadata (source, type, subject, time, ID) is expressed and transported. Production-grade (v1.0.2), adopted by AWS EventBridge, Azure Event Grid, Google Eventarc, and others. Relevant to agent observability as a potential transport envelope for agent events in event-driven multi-agent architectures (e.g., Kafka-based agent buses). No current effort to standardize AI agent-specific CloudEvents schemas.
 
 **OpenLineage (LF AI & Data, Graduated):** An open standard for collecting lineage metadata about data pipeline runs. Defines Job, Run, and Dataset entities with extensible facets. Widely adopted for SQL/Spark/Airflow/dbt pipeline lineage. Relevant to agent observability because it tracks "what data did the agent's pipeline consume and produce" - the data layer beneath agent reasoning. The Run/Job/Dataset model maps interestingly onto agentic systems (workflow = Job, execution = Run, tool outputs = Datasets), but this mapping has not been formalized.
+
+**OpenTelemetry eBPF Instrumentation / OBI:** OBI is part of OpenTelemetry's eBPF instrumentation work. It is not specific to GenAI or agent observability, but it can provide network-level and runtime-derived telemetry that may be more trustworthy than agent-emitted signals for some security, safety, and compliance use cases.
+
+**ATIF trajectory format:** The ATIF trajectory format proposed in the Harbor RFC is relevant to the WG's session-level trajectory question. It may be useful as an interchangeable session artifact derived from OTel traces, especially for training, evaluation, and replay workflows that need more than individual spans.
 
 **Interaction opportunity:** Low for direct adoption, but worth tracking. CloudEvents may matter if the WG defines event-based conventions for agent lifecycle events. OpenLineage may matter if the WG addresses data provenance for RAG pipelines or tool outputs.
 
 **References:**
 - [cloudevents.io](https://cloudevents.io/)
 - [openlineage.io](https://openlineage.io/)
+- [OpenTelemetry eBPF instrumentation HTTP support](https://github.com/open-telemetry/opentelemetry-ebpf-instrumentation/tree/main/pkg/ebpf/common/http)
+- [Harbor RFC: ATIF trajectory format](https://github.com/harbor-framework/harbor/blob/main/rfcs/0001-trajectory-format.md)
 
 ---
 
@@ -574,7 +586,7 @@ Several academic papers have surveyed or contributed to the agent observability 
 
 Based on the gaps above, several questions emerge for the working group to investigate:
 
-1. **Is there a need for a session-level convention** that complements OTel's span-based telemetry? If so, should it be an OTel extension, a standalone format, or something else?
+1. **Is there a need for a session-level convention** that complements OTel's span-based telemetry? If so, should it be an OTel extension, a standalone format such as ATIF, or something else?
 
 2. **How should evaluation and quality data relate to traces?** Is there value in standardizing how post-hoc analysis (task labels, quality scores, failure classifications) is layered on top of observability data?
 
