@@ -1,6 +1,6 @@
 # Observability and Traceability Working Group
 
-For more information, review the [Working Group Charter document](charter/CHARTER.md).
+For more information, review the [Working Group Charter](charter/CHARTER.md).
 
 ## Mission
 
@@ -19,30 +19,24 @@ Current term for the Working Group Chairs is **March 1, 2026 - January 31, 2027*
 
 This working group meets **biweekly on Wednesdays at 10:00AM PT** (USA Pacific Time; [Convert to local time zone](http://www.thetimezoneconverter.com/?t=10:00AM&tz=San%20Francisco)).
 
-**[Join the Meeting](https://zoom-lfx.platform.linuxfoundation.org/meeting/95930917522?password=33e3604e-8975-45d0-b64c-144728da059d)** - Please note the meeting link will only work for those that have signed up for the working group.
-
-**Working Group Meetings are only open to AAIF members at this time.** Participants must be invited to join. 
-
-If someone from an AAIF member organization would like to join, please [sign up here](https://forms.gle/mqvEADnhCsmsvmC69) using your business email address.
+**[Join the Meeting](https://zoom-lfx.platform.linuxfoundation.org/meeting/95930917522?password=33e3604e-8975-45d0-b64c-144728da059d)** 
 
 ## Meeting Agenda and Minutes
 
 [Running Notes Doc](https://docs.google.com/document/d/1CyUJK1tK_XtJegRBXaTK9t_cntYgE9zfteMZyKvfKGQ/edit?usp=sharing)
 
-All meeting recordings and AI summaries can be found on your [LFX Individual Dashboard](openprofile.dev). Create a Linux Foundation (LFX) account to see all meetings, AI summaries, recordings, etc. all in one place.
+All meeting recordings and AI summaries can be found at [app.lfx.dev](https://app.lfx.dev). Create a Linux Foundation (LFX) account to see all meetings, AI summaries, recordings, etc. all in one place.
 
 ## Communication
 
-Reach out on the private working group mailing list: wg-observability-traceability@lists.aaif.io 
+Join the public working group [mailing list](https://lists.aaif.io/g/wg-observability-traceability): wg-observability-traceability@lists.aaif.io 
 
-Join the private Working Group [Discord channel](https://discord.gg/BAzqNsGctj). **(Please do not share this link publicly; it is for Working Group members only).**
+Reach out on the public Working Group [Discord channel](https://discord.com/channels/1461090924791595243/1464020789350240266). New to the AAIF Discord Server? [Join here](https://discord.com/invite/9zTwngHAMy). 
 
 Need help? email: support@aaif.io.
 
 ## Join a Working Group
-The TC supports multiple technical working groups. **Working Groups are only open to AAIF members at this time.** Participants must be invited to join. 
-
-If someone from an AAIF member organization would like to join, please [sign up here](https://forms.gle/mqvEADnhCsmsvmC69) using your business email address.
+The TC supports multiple technical working groups. Working Groups are open to the public and cross-functional participation is actively encouraged. [View the full calendar of public meetings](https://zoom-lfx.platform.linuxfoundation.org/meetings/agentic-ai-foundation). 
 
 The current list of working groups are:
    - Accuracy & Reliability
@@ -52,6 +46,7 @@ The current list of working groups are:
    - Observability & Traceability
    - Security & Privacy
    - Workflows & Process Integration
+   - Taxonomy & Landscape (a Cross-Working Group Workstream)
 
 ## Commitment to Neutrality
 
