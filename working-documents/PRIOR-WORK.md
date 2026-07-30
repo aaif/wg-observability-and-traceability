@@ -54,6 +54,7 @@ This refresh keeps the March 2026 landscape structure but updates the areas wher
 | **OpenLIT** | OTel-native LLM observability | Production | Open | Follows OTel semconv closely |
 | **OBI / OTel eBPF instrumentation** | Network/runtime instrumentation signals | Active OTel effort | Open | Trusted environment-derived telemetry |
 | **ATIF trajectory format** | Session-level trajectory artifact | RFC/proposal | Open | Interchangeable trajectory data for eval/training/replay |
+| **action_ref / Mycelium Trails** | Post-hoc, third-party-verifiable action accountability | IETF individual draft (-02); production anchoring | Open | Recomputable without trusting the logger |
 
 ---
 
@@ -547,6 +548,34 @@ Several academic papers have surveyed or contributed to the agent observability 
 - **["Governance-Aware Agent Telemetry for Closed-Loop Enforcement in Multi-Agent AI Systems"](https://arxiv.org/abs/2604.05119)** (arXiv:2604.05119, Apr 2026) - Proposes extending OTel with governance attributes, real-time OPA-compatible policy detection, an enforcement bus, and cryptographic provenance.
 
 **Relevance to the working group:** The academic literature confirms that goal tracing, plan tracing, and audit-grade session records are gaps across the landscape. These findings should inform our use case prioritization.
+
+---
+
+### 18. action_ref / Mycelium Trails
+
+**What it is:** A post-hoc accountability layer, not a tracing or telemetry system. `action_ref` is a deterministic, content-addressed identifier for an agent action — `SHA-256(JCS({agent_id, action_type, scope, timestamp}))`, RFC 8785 canonicalization — computable independently by any party holding the four preimage fields, with no trust in the emitting system required. A `TrailRecord` anchors that reference on-chain (Arbitrum, in production) so a third-party verifier can later confirm the record has not been altered since anchor time, using only the chain as source of truth. Specified in an IETF individual draft, [`draft-etcheverry-action-ref`](https://datatracker.ietf.org/doc/draft-etcheverry-action-ref/) (`-02`, active).
+
+**Scope:** Deliberately narrow. It answers one question — "did this specific action happen, with this exact content, and can I verify that without trusting whoever logged it?" — and nothing else. It does not model spans, sessions, goals, plans, or multi-agent coordination.
+
+**Maturity:** Production. `action_ref` and the anchoring path run against real infrastructure (`giskard09/argentum-core`), with a public verification endpoint and a worked-examples series (`*-action-ref-anchor`) demonstrating the same derivation applied to several third-party agent/payment stacks' own artifacts.
+
+**Strengths:**
+- Recomputable by a third party from four fields alone — no dependency on the logger's honesty, uptime, or internal storage
+- Tamper-evidence is external (on-chain), not just internal consistency of a log store
+- Backend-agnostic verification model (`outcome_handle`/`confirmation_predicate`) generalizes beyond on-chain to any backend offering an independent refetch of terminal state
+- Deployed against real production traffic, not only a paper spec
+
+**Gaps:**
+- No session model, no span tree, no multi-agent coordination semantics — entirely out of scope by design
+- Does not capture reasoning, goals, or plans — only the fact of a discrete action and its content hash
+- IETF draft is still an individual submission, pre-adoption
+
+**Interaction opportunity:** Medium, and complementary rather than competing. The WG's session-trace model answers "what did the agent do, and in what structure" — richly, at the level `action_ref` deliberately does not touch. `action_ref` answers a narrower, orthogonal question: "is this particular recorded action verifiable by someone who does not trust whoever reported it?" A session trace format could carry an `action_ref` per relevant span or event as an optional field, the same way this document catalogues OTel as the wire protocol and CloudEvents as an adjacent envelope format — interoperability over invention, consistent with the WG's own framing. No claim that this replaces OTel, AOS, or AGNTCY; it sits one layer beneath any of them, where accountability rather than structure is the question.
+
+**References:**
+- [`draft-etcheverry-action-ref`](https://datatracker.ietf.org/doc/draft-etcheverry-action-ref/)
+- [action_ref derivation spec](https://github.com/giskard09/argentum-core/blob/main/docs/spec/action-ref.md)
+- [Guarantee model: what each layer proves](https://github.com/giskard09/argentum-core/blob/main/docs/spec/guarantee-model.md)
 
 ---
 
