@@ -268,6 +268,20 @@ Each use case follows a consistent structure:
 
 ---
 
+### I. Identity and Ownership
+
+#### I1. Cross-surface identity resolution
+
+**Description:** A single person's (or task's) agent activity is spread across multiple surfaces (IDE, CLI, CI, cloud execution), harnesses, and model providers, each with its own notion of "who" ran the agent - an API key, an OAuth subject, a service account, or an anonymous session. The practitioner needs to resolve all of that activity to one human initiator and the organizational unit that owns its cost and risk, consistently across surfaces and over time.
+
+**Target audience:** Platform teams, security and compliance officers, finance/FinOps teams, engineering managers accountable for agent spend and risk.
+
+**What data is required:** A stable actor identifier per session; the raw principal used on each surface (API key, OAuth subject, service account); a mapping from those principals to a canonical human and org identity; the delegation / on-behalf-of chain (human -> agent -> sub-agent -> tool); and organizational metadata (team, cost center) attached to the resolved identity.
+
+**Current state:** Assumed but largely unaddressed as an observability concern in its own right. Audit-focused use cases (E3) list "user identity" as required data, and cost use cases (B1, B2) are only meaningful once activity is attributed to an owner, yet no convention specifies how to resolve one actor across surfaces, harnesses, and providers. [OCSF](https://schema.ocsf.io/) models actors and identities for security events and is relevant prior art; OAuth/OIDC subjects and service-account principals are the raw inputs. Gap: a portable way to carry a resolved identity (and its delegation chain) through the trace, so cost, audit, and attribution use cases share one owner definition rather than each re-deriving it.
+
+---
+
 ## Contributing
 
 This document is maintained by the Observability Working Group. To add a use case:
@@ -310,3 +324,4 @@ When adding use cases, consider:
 | H1. Failure discovery | | |
 | H2. Training data | | |
 | H3. Benchmarking | | |
+| I1. Cross-surface identity resolution | | |
