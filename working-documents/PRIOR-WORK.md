@@ -2,7 +2,7 @@
 
 **AAIF Observability Working Group - Landscape Survey**
 **Initial draft:** 2026-03-15
-**Status:** Living working group document - last reviewed 2026-07-08
+**Status:** Living working group document - last reviewed 2026-08-13
 
 ---
 
@@ -20,15 +20,16 @@ We are not starting from scratch. As this survey shows, there is substantial pri
 
 ---
 
-## June 2026 Refresh Notes
+## June-August 2026 Refresh Notes
 
-This refresh keeps the March 2026 landscape structure but updates the areas where the industry moved materially:
+This refresh keeps the March 2026 landscape structure but updates the areas where the industry moved materially. Dated repository counts and release numbers are point-in-time observations, not maturity measures; assessments should prioritize specification status, interoperability evidence, and production adoption.
 
 - **OpenTelemetry GenAI is now its own standards venue.** The main OTel semantic-conventions docs now point readers to the dedicated [open-telemetry/semantic-conventions-genai](https://github.com/open-telemetry/semantic-conventions-genai) repository. That repo contains the generated GenAI docs for agent/framework spans, events, MCP, provider-specific conventions, and a reference implementation/compliance matrix.
 - **Agent spans are becoming more explicit.** OTel GenAI now documents create-agent, invoke-agent, invoke-workflow, execute-tool, and plan spans. The work remains in Development status, but the model is more concrete than it was in March.
 - **Cursor Agent Trace remains narrow and draft-stage.** The public repo still presents v0.1.0 as the draft format; as of 2026-06-16, repository metadata showed 744 stars, 54 forks, 19 open issues, and no published GitHub release.
 - **AOS has a clearer specification surface.** The AOS site now separates Instrument, Trace, and Inspect specs, including MCP/A2A instrumentation, OpenTelemetry and OCSF trace mappings, and AgBOM mappings to CycloneDX/SPDX/SWID.
-- **AGNTCY Observe is worth tracking closely.** The Observe SDK docs describe an OTel-aligned multi-agent observability schema, protocol instrumentation for A2A, SLIM, and MCP, and end-to-end trace recomposition across agent boundaries. The `agntcy/observe` repo has published `sdk-v1.0.42`.
+- **AGNTCY Observe is worth tracking closely.** The Observe SDK docs describe an OTel-aligned multi-agent observability schema, protocol instrumentation for A2A, SLIM, and MCP, and end-to-end trace recomposition across agent boundaries. The latest public release is `sdk-v1.0.43`.
+- **OCSF now has direct agent-observability semantics.** Schema 1.9 includes AI Operation, AI Agent, Delegation, and Record Integrity structures that cover stable and instance agent identity, delegated authority, AI message context, and attested security events.
 - **Implementation ecosystems are still moving quickly.** Monocle reached v0.8.4 in June 2026. OpenInference, Langfuse, Helicone, and related observability platforms continue to evolve rapidly, reinforcing that this document needs periodic refreshes rather than one-time publication.
 - **Environment-derived telemetry is relevant to agent observability.** OTel's eBPF instrumentation work, including OBI, is not GenAI-specific but can provide trusted network and runtime signals that complement telemetry emitted by agents or frameworks.
 - **Academic work is shifting toward security and governance.** Recent 2026 papers frame agent observability as a substrate for continuous security monitoring and closed-loop governance, not only debugging and evaluation.
@@ -50,7 +51,9 @@ This refresh keeps the March 2026 landscape structure but updates the areas wher
 | **Langfuse** | LLM observability with published data model | Production | Open source | OTel-native, session-aware, self-hostable |
 | **Helicone** | Proxy-based LLM observability | Production | Open source | Zero-SDK integration, 2B+ interactions |
 | **Monocle (LF AI & Data)** | GenAI auto-instrumentation framework | Early, active (v0.8.4) | Open (Apache 2.0) | Broadest framework auto-instrumentation |
-| **AGNTCY** | Multi-agent interop + observability | Active; Observe SDK 1.0.x | Open (Apache 2.0) | Cross-agent context propagation |
+| **AGNTCY** | Multi-agent interop + observability | Active; Observe SDK 1.0.43 | Open (Apache 2.0) | Cross-agent context propagation |
+| **OCSF** | Security events, AI operations, agent identity, delegation, record integrity | Production schema; agent-specific profile in v1.9 | Open | Normalized security evidence for agent actions |
+| **A2A traceability extension** | Response traces embedded in A2A messages and artifacts | Experimental sample extension | Open | Cross-agent return of nested agent/tool steps |
 | **OpenLIT** | OTel-native LLM observability | Production | Open | Follows OTel semconv closely |
 | **OBI / OTel eBPF instrumentation** | Network/runtime instrumentation signals | Active OTel effort | Open | Trusted environment-derived telemetry |
 | **ATIF trajectory format** | Session-level trajectory artifact | RFC/proposal | Open | Interchangeable trajectory data for eval/training/replay |
@@ -136,7 +139,7 @@ This refresh keeps the March 2026 landscape structure but updates the areas wher
 - Still at the proposal stage - significant design work remains
 - The task/action decomposition may be too opinionated for some agent architectures
 - Cisco flagged overlap with existing workflow/task concepts (Issue #1688)
-- No reference implementation yet
+- No complete reference implementation of the full task/action/team/artifact/memory model; the dedicated GenAI repository now includes narrower reference scenarios and conformance tooling
 
 **Interaction opportunity:** High. This proposal is actively seeking input. Working group members building multi-agent systems should review and contribute. The AGNTCY connection to Linux Foundation means there's a natural bridge to AAIF.
 
@@ -493,7 +496,7 @@ These represent the startup wave in agent observability. Each has a distinct ang
 - Multi-agent-specific metrics: collaboration success rate, response time, task delegation accuracy
 - Schema translation layer to normalize telemetry from heterogeneous OTel-compliant SDKs
 
-**Maturity:** Active and still evolving rapidly. The Observe SDK docs describe an OTel-aligned multi-agent observability schema, protocol instrumentation for A2A, SLIM, and MCP, and end-to-end trace recomposition across agent boundaries. The `agntcy/observe` repo has published `sdk-v1.0.42` (2026-05-28).
+**Maturity:** Active and still evolving rapidly. The Observe SDK docs describe an OTel-aligned multi-agent observability schema, protocol instrumentation for A2A, SLIM, and MCP, and end-to-end trace recomposition across agent boundaries. The latest public release is `sdk-v1.0.43`.
 
 **Strengths:**
 - Observability is one of six explicit pillars, not an afterthought
@@ -501,7 +504,7 @@ These represent the startup wave in agent observability. Each has a distinct ang
 - LF governance and strong backer list
 
 **Gaps:**
-- Sub-1.0, still evolving rapidly
+- The SDK has reached 1.0.x but its schema and ecosystem are still evolving rapidly
 - Observe SDK adoption is nascent
 
 **Interaction opportunity:** High. AGNTCY is under the same Linux Foundation umbrella, observability is a core pillar, and the cross-agent tracing problem is one the WG should understand deeply. The Observe SDK's conventions should be reviewed alongside OTel GenAI SIG proposals.
@@ -513,29 +516,91 @@ These represent the startup wave in agent observability. Each has a distinct ang
 
 ---
 
-### 16. Adjacent Standards and Formats (CloudEvents, OpenLineage, OBI, ATIF)
+### 16. Open Cybersecurity Schema Framework (OCSF)
 
-These are not all agent observability specifications, but they operate in adjacent layers that the WG should be aware of.
+**What it is:** An open, vendor-neutral schema for normalizing security events. OCSF models event producers, actors, resources, outcomes, observables, and raw evidence across identity, application, network, and system activity. Version 1.9 adds direct agent relevance through the AI Operation and Record Integrity profiles.
 
-**CloudEvents (CNCF, Graduated):** A vendor-neutral envelope format for event data, standardizing how event metadata (source, type, subject, time, ID) is expressed and transported. Production-grade (v1.0.2), adopted by AWS EventBridge, Azure Event Grid, Google Eventarc, and others. Relevant to agent observability as a potential transport envelope for agent events in event-driven multi-agent architectures (e.g., Kafka-based agent buses). No current effort to standardize AI agent-specific CloudEvents schemas.
+**Agent-specific scope:** The AI Operation profile can be applied to existing event classes and adds an `ai_agent`, model or agent context, delegation, and message context. The AI Agent object distinguishes a stable logical agent ID from a run- or session-specific instance ID and records the agent framework, version, backing model, and optional charter. The Delegation object carries a durable, issuer-generated authorization context with parent links for re-delegation lineage, independent of trace or session hierarchy. Message Context covers AI roles, services, conversation identifiers, prompts, responses, and token counts for MCP and other AI communications.
 
-**OpenLineage (LF AI & Data, Graduated):** An open standard for collecting lineage metadata about data pipeline runs. Defines Job, Run, and Dataset entities with extensible facets. Widely adopted for SQL/Spark/Airflow/dbt pipeline lineage. Relevant to agent observability because it tracks "what data did the agent's pipeline consume and produce" - the data layer beneath agent reasoning. The Run/Job/Dataset model maps interestingly onto agentic systems (workflow = Job, execution = Run, tool outputs = Datasets), but this mapping has not been formalized.
+**Broader security scope:** OCSF's API, authentication, file-system, and process activity classes can represent agent side effects using telemetry generated by gateways, identity providers, operating systems, and security sensors. The Actor object records the user, role, application, service, process, session, identity provider, and authorization results associated with an event. The Record Integrity profile supports multiple attestations, signatures, witnesses, and tamper-evident event chains.
+
+**Maturity:** OCSF is a production-oriented LF Projects schema with broad security-industry use. The agent-specific AI Operation, AI Agent, Delegation, and Record Integrity structures are present in schema version 1.9; implementation coverage and interoperability experience for these newer structures remain to be established.
+
+**Strengths:**
+- Models autonomous agents explicitly rather than forcing them into human-user or generic-service fields
+- Separates stable agent identity, running instance identity, execution hierarchy, and delegated authority
+- Can represent environment-derived side effects that are more trustworthy than agent self-reporting
+- Provides existing event classes for authentication, authorization context, API calls, file changes, and process activity
+- Treats record integrity as a composable profile rather than an agent-only log format
+
+**Gaps:**
+- OCSF is event-oriented and does not replace OTel's span timing, causal execution graph, metrics, or trace propagation
+- The AI profile does not by itself resolve heterogeneous surface principals to one canonical human or organizational owner
+- Carrying prompt, response, user, and delegation data requires explicit minimization, redaction, and access-control guidance
+- Practical mappings between OCSF AI events and OTel GenAI, A2A, MCP, and agent-framework telemetry need validation
+- New agent-specific objects may not yet be supported consistently by producers, data lakes, or security products
+
+**Interaction opportunity:** High. The working group should evaluate OCSF 1.9 alongside OTel GenAI rather than treating OCSF only as generic security prior art. A useful deliverable would define correlation and mapping guidance: OTel for execution flow and performance, OCSF for normalized security-relevant events, side effects, delegated authority, and integrity evidence.
+
+**References:**
+- [OCSF schema 1.9](https://schema.ocsf.io/1.9.0/)
+- [AI Operation profile](https://schema.ocsf.io/1.9.0/profiles/ai_operation)
+- [AI Agent object](https://schema.ocsf.io/1.9.0/objects/ai_agent)
+- [Delegation object](https://schema.ocsf.io/1.9.0/objects/delegation)
+- [Record Integrity profile](https://schema.ocsf.io/1.9.0/profiles/record_integrity)
+- [API Activity class](https://schema.ocsf.io/1.9.0/classes/api_activity)
+- [File System Activity class](https://schema.ocsf.io/1.9.0/classes/file_activity)
+
+---
+
+### 17. A2A Traceability Extension
+
+**What it is:** An experimental extension in the `a2a-samples` repository for returning traceability information in A2A `Message` and `Artifact` metadata. Clients opt in through the A2A extension activation mechanism, using the extension URI in an HTTP header or gRPC metadata.
+
+**Scope:** The extension defines a custom `ResponseTrace` containing parent-linked steps. Each step represents an agent or tool invocation and may include its trace and step identifiers, invocation details, cost, total tokens, arbitrary attributes, latency, and start/end timestamps. Agent-invocation steps can embed a nested response trace returned by another agent that supports the extension.
+
+**Maturity:** Experimental. The document lives under `a2a-samples`, not the core A2A specification, and provides a short versioned proposal rather than a conformance-tested standard. Its current public form should be treated as implementation prior art.
+
+**Strengths:**
+- Demonstrates an opt-in mechanism for carrying observability data across an A2A boundary
+- Represents nested agent and tool activity rather than exposing only the top-level request
+- Associates trace information with both messages and resulting artifacts
+- Provides a concrete starting point for discussing cross-agent trace disclosure
+
+**Gaps:**
+- Defines its own trace and step structure rather than mapping to W3C Trace Context, OpenTelemetry spans, or OCSF events
+- Returns trace data in message content but does not define inbound context propagation or how independently collected traces are correlated
+- Agent names and URLs are descriptive identifiers, not authenticated agent identities or delegation evidence
+- Cost and latency fields lack units and cost breakdown semantics; outcomes, errors, status, and sampling are not modeled explicitly
+- Tool parameters and inter-agent requests may contain sensitive content, but the extension gives no minimization, redaction, authorization, or trust-boundary guidance
+- Nested response traces can increase payload size substantially and disclose internal implementation details across organizations
+
+**Interaction opportunity:** Medium as a prototype. The working group should engage with A2A on a production convention based on W3C Trace Context and OTel correlation, with explicit disclosure controls and optional links to OCSF identity and delegation evidence. A response-carried diagnostic trace may remain useful, but it should be distinguished from trace-context propagation.
+
+**References:**
+- [A2A traceability extension specification](https://github.com/a2aproject/a2a-samples/blob/main/extensions/traceability/v1/spec.md)
+- [A2A extensions](https://a2a-protocol.org/latest/topics/extensions/)
+- [W3C Trace Context](https://www.w3.org/TR/trace-context/)
+
+---
+
+### 18. Additional Observability Formats (OBI, ATIF)
+
+These efforts directly address instrumentation or interchange of agent-observability data.
 
 **OpenTelemetry eBPF Instrumentation / OBI:** OBI is part of OpenTelemetry's eBPF instrumentation work. It is not specific to GenAI or agent observability, but it can provide network-level and runtime-derived telemetry that may be more trustworthy than agent-emitted signals for some security, safety, and compliance use cases.
 
 **ATIF trajectory format:** The ATIF trajectory format proposed in the Harbor RFC is relevant to the WG's session-level trajectory question. It may be useful as an interchangeable session artifact derived from OTel traces, especially for training, evaluation, and replay workflows that need more than individual spans.
 
-**Interaction opportunity:** Low for direct adoption, but worth tracking. CloudEvents may matter if the WG defines event-based conventions for agent lifecycle events. OpenLineage may matter if the WG addresses data provenance for RAG pipelines or tool outputs.
+**Interaction opportunity:** Medium. OBI can complement agent-emitted telemetry with independently observed runtime signals, while ATIF may provide a portable session artifact derived from traces for evaluation, replay, and training.
 
 **References:**
-- [cloudevents.io](https://cloudevents.io/)
-- [openlineage.io](https://openlineage.io/)
 - [OpenTelemetry eBPF instrumentation HTTP support](https://github.com/open-telemetry/opentelemetry-ebpf-instrumentation/tree/main/pkg/ebpf/common/http)
 - [Harbor RFC: ATIF trajectory format](https://github.com/harbor-framework/harbor/blob/main/rfcs/0001-trajectory-format.md)
 
 ---
 
-### 17. Academic Research
+### 19. Academic Research
 
 Several academic papers have surveyed or contributed to the agent observability space:
 
@@ -554,9 +619,9 @@ Several academic papers have surveyed or contributed to the agent observability 
 
 ### What's converging
 
-1. **OTel as the wire protocol.** Nearly every effort either builds on OTel directly or provides OTel export. This is the clear consensus for runtime telemetry transport.
+1. **OTLP as the dominant telemetry transport.** Nearly every effort either builds on OpenTelemetry directly or provides OTLP export. This is the clearest point of convergence for runtime telemetry transport.
 
-2. **Span-based agent tracing.** The span tree model (agent -> LLM call -> tool use) is the dominant paradigm. Most implementations agree on this basic structure.
+2. **Span-based agent tracing.** The span tree model (agent -> LLM call -> tool use) is the dominant implementation pattern. Whether it is sufficient for long-running, multi-turn, and asynchronous sessions remains unsettled.
 
 3. **Protocol-aware agent tracing.** MCP and A2A have become recurring protocol surfaces across OTel GenAI, AOS, and AGNTCY. Observability standards increasingly need to describe not just model calls, but protocol boundaries and context propagation across them.
 
@@ -582,6 +647,18 @@ Several academic papers have surveyed or contributed to the agent observability 
 
 9. **Passive observability vs. enforcement.** AOS and recent academic work push beyond "record what happened" toward instrumentable agents, policy hooks, and runtime intervention. The boundary between observability, control, and governance is not yet settled.
 
+10. **Telemetry source and trustworthiness.** Agent- and framework-emitted telemetry can describe intent and internal state but may be incomplete, compromised, or selectively emitted. Gateway, identity-provider, sandbox, operating-system, network, and security-sensor telemetry offers more independent evidence but less semantic context. No shared model describes who observed an event, how directly, and at what assurance level.
+
+11. **Privacy and data governance.** Prompt and response content, tool parameters, identities, delegation links, and persistent correlation IDs can contain personal, confidential, or security-sensitive data. Capture conventions remain fragmented across minimization, consent, redaction, encryption, residency, retention, access control, and deletion.
+
+12. **Sampling vs. audit completeness.** Ordinary observability pipelines sample and drop data by design, while audit and compliance use cases may require complete records. The industry lacks a common way to declare completeness requirements, detect collection gaps, or separate sampled operational telemetry from mandatory audit evidence.
+
+13. **Schema and semantic evolution.** Agent, tool, and protocol conventions are changing quickly. Portable records need explicit schema and semantic-convention versions, compatibility rules, and migration guidance so historical telemetry remains interpretable.
+
+14. **Asynchronous causality and ordering.** Wall-clock timestamps and parent-child spans are insufficient when agents run concurrently, communicate through queues, resume after suspension, or delegate across systems with clock skew. Correlation needs causal links that do not assume a single process, clock, or linear session.
+
+15. **Integrity, authenticity, and completeness.** Hash chains, signatures, attestations, and transparency logs can detect modification and establish who vouched for a record. They do not by themselves prove that all events were recorded, that timestamps are accurate, or that reported actions match world-state changes.
+
 ### Open questions for the working group
 
 Based on the gaps above, several questions emerge for the working group to investigate:
@@ -594,11 +671,21 @@ Based on the gaps above, several questions emerge for the working group to inves
 
 4. **What guidance is needed for content capture?** Full prompt/completion content is essential for many use cases but doesn't fit neatly into OTel span attributes. What approaches should the community consider?
 
-5. **Span trees or event streams?** The dominant model in the landscape is OTel-style span trees - hierarchical parent-child relationships with start/end times. But agent sessions are inherently sequential and incremental: a stream of turns, tool calls, and responses that unfold over time. Some approaches (OWASP AOS's turn/step model, CloudEvents-style event envelopes) lean toward event-stream semantics. Is the span tree the right primitive for agent observability, or does the community need an event-stream model - or both? What are the trade-offs for different use cases (real-time monitoring vs. post-hoc analysis vs. replay)?
+5. **Span trees or event streams?** The dominant model in the landscape is OTel-style span trees - hierarchical parent-child relationships with start/end times. But agent sessions are inherently sequential and incremental: a stream of turns, tool calls, and responses that unfold over time. Approaches such as OWASP AOS's turn/step model and ATIF trajectories preserve more explicit sequence structure. Is the span tree the right primitive for agent observability, or does the community need an event-stream model - or both? What are the trade-offs for different use cases (real-time monitoring vs. post-hoc analysis vs. replay)?
 
 6. **Are coding agents the right starting point, or should we generalize?** Much of the existing work focuses on coding agents. What do DevOps agents, monitoring agents, and autonomous agents need differently?
 
 7. **Where does runtime intervention belong?** If agent observability is used for hard controls, policy enforcement, or human approval gates, should those hooks be part of the same standard as traces, or a separate control-plane specification linked by shared identifiers?
+
+8. **How should identity, delegation, and ownership be correlated?** Can OCSF's agent and delegation objects, OTel attributes, and existing identity protocols share identifiers without conflating the initiating human, executing agent, authenticated workload, and accountable organizational owner?
+
+9. **How should telemetry source and assurance be represented?** Consumers need to distinguish agent self-reporting from framework, gateway, identity-provider, sandbox, operating-system, and network observations, including how directly each source observed the claimed action.
+
+10. **What is the minimum privacy and governance envelope?** Should conventions standardize sensitivity labels, redaction state, retention class, residency, consent basis, and references to externally stored content rather than only define payload fields?
+
+11. **How should audit-grade records coexist with sampled telemetry?** Which events must be complete, how are gaps detected and reported, and how should audit evidence correlate with traces without assuming that every span is retained?
+
+12. **How should asynchronous causality and schema evolution be handled?** What identifiers, causal links, version declarations, and migration rules keep concurrent and historical agent activity interpretable across implementations?
 
 ---
 
