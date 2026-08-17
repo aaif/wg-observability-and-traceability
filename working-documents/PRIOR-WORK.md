@@ -14,7 +14,7 @@ This is not a competitive ranking - many of these efforts address different face
 
 ## Context: The AAIF and This Working Group
 
-The Agentic AI Foundation (AAIF), formed in December 2025 under the Linux Foundation, is the home of MCP, goose, AGENTS.md, Agentgateway, and AGNTCY (multi-agent standards for discovery, identity, messaging, and observability). Its platinum members include AWS, Anthropic, Block, Bloomberg, Cloudflare, Google, Microsoft, and OpenAI, with 97+ additional members including Cisco, Datadog, Docker, IBM, JetBrains, Okta, Oracle, Salesforce, SAP, and Shopify. The Observability Working Group operates under this umbrella, with the mandate to survey, coordinate, and where appropriate standardize agent observability across the AAIF community.
+The Agentic AI Foundation (AAIF), formed in December 2025 under the Linux Foundation, is the home of MCP, goose, AGENTS.md, Agentgateway, A2A (agent-to-agent interoperability, joined August 2026), and AGNTCY (multi-agent standards for discovery, identity, messaging, and observability). Its platinum members include AWS, Anthropic, Block, Bloomberg, Cloudflare, Google, Microsoft, and OpenAI, with 97+ additional members including Cisco, Datadog, Docker, IBM, JetBrains, Okta, Oracle, Salesforce, SAP, and Shopify. The Observability Working Group operates under this umbrella, with the mandate to survey, coordinate, and where appropriate standardize agent observability across the AAIF community.
 
 We are not starting from scratch. As this survey shows, there is substantial prior work across multiple organizations and standards bodies. Our job is to understand what exists, identify gaps, and determine where AAIF can add the most value - whether that's adopting existing standards, extending them, or filling genuinely unaddressed needs.
 
@@ -51,6 +51,8 @@ This refresh keeps the March 2026 landscape structure but updates the areas wher
 | **Helicone** | Proxy-based LLM observability | Production | Open source | Zero-SDK integration, 2B+ interactions |
 | **Monocle (LF AI & Data)** | GenAI auto-instrumentation framework | Early, active (v0.8.4) | Open (Apache 2.0) | Broadest framework auto-instrumentation |
 | **AGNTCY** | Multi-agent interop + observability | Active; Observe SDK 1.0.x | Open (Apache 2.0) | Cross-agent context propagation |
+| **A2A** | Agent-to-agent protocol (v1.0, Mar 2026); signed agent cards, task delegation | Production (Huawei Celia, WeChat, Google Cloud ADK, Azure AI Foundry, AWS Bedrock AgentCore, PayPal) | Open (Apache 2.0) | Cross-vendor agent interoperability; signed agent identity |
+| **agentgateway** | Traffic mediation/control between agents and infrastructure (MCP + A2A) | One-click deployable on AWS/Azure/GCP marketplaces | Open (Apache 2.0) | Central enforcement point for declared-vs-observed policy |
 | **OpenLIT** | OTel-native LLM observability | Production | Open | Follows OTel semconv closely |
 | **OBI / OTel eBPF instrumentation** | Network/runtime instrumentation signals | Active OTel effort | Open | Trusted environment-derived telemetry |
 | **ATIF trajectory format** | Session-level trajectory artifact | RFC/proposal | Open | Interchangeable trajectory data for eval/training/replay |
@@ -547,6 +549,21 @@ Several academic papers have surveyed or contributed to the agent observability 
 - **["Governance-Aware Agent Telemetry for Closed-Loop Enforcement in Multi-Agent AI Systems"](https://arxiv.org/abs/2604.05119)** (arXiv:2604.05119, Apr 2026) - Proposes extending OTel with governance attributes, real-time OPA-compatible policy detection, an enforcement bus, and cryptographic provenance.
 
 **Relevance to the working group:** The academic literature confirms that goal tracing, plan tracing, and audit-grade session records are gaps across the landscape. These findings should inform our use case prioritization.
+
+---
+
+### 18. A2A (Agent-to-Agent protocol) and agentgateway
+
+[A2A](https://github.com/a2aproject/A2A) is the agent-to-agent interoperability protocol that joined AAIF as a hosted project in August 2026 (Google-launched April 2025; IBM's ACP merged August 2025; v1.0 March 2026). It standardizes agent discovery, task delegation, and exchange between agents across vendors. The agent card (`.well-known/agent-card.json`, RFC 8615) carries declared capabilities, auth requirements, and a signed identity.
+
+[agentgateway](https://github.com/solo-io/agentgateway) (solo.io, joined AAIF June 2026) is a traffic mediation and control plane between agents and infrastructure, handling MCP and A2A traffic, with one-click deployment on AWS/Azure/GCP marketplaces.
+
+**Observability relevance:** A2A is the inter-agent boundary the WG already tracks (protocol-aware tracing across MCP and A2A appears in OTel GenAI, AOS, and AGNTCY). Two observability-relevant properties stand out:
+
+- **Signed agent cards create a verification surface.** A2A v1.0 signs cards, but identity verification of card claims against runtime behaviour is an open problem tracked in [a2aproject/A2A issue #1672](https://github.com/a2aproject/A2A/issues/1672). Signatures prove *who published* a card, not that the agent *behaves as declared*. This maps to the WG's "passive observability vs enforcement" tension: declared capabilities (card) vs observed capability use (trace) vs enforced policy (agentgateway boundary).
+- **agentgateway is a natural enforcement point.** If declared-vs-observed reconciliation is the gap, the gateway boundary is where policy checks can compare requested actions against declared capabilities - the E2 layer in an evidence ladder (declared -> observed -> enforced -> corroborated -> anchored).
+
+**Interaction opportunity:** Medium. The A2A issue tracker explicitly invites a standardized identity-verification mechanism. The WG's gap analysis could name this as an upstream contribution opportunity, and the "evidence layer" (who verifies declarations and can prove it later) is currently unclaimed across the hosted stack.
 
 ---
 
