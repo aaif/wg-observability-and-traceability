@@ -186,7 +186,20 @@ Each use case follows a consistent structure:
 
 ---
 
+#### E4. Tamper-evident evidence for audit and dispute resolution
+
+**Description:** A regulated organization must demonstrate, after the fact, what an agent actually did - which tools it called, what side effects occurred in the world, who approved each step, and under what authorization - in a way that is tamper-evident and admissible as evidence. This goes beyond debugging traces: the record must be resistant to modification (by the vendor, the operator, or the agent itself), independently verifiable, and time-bound.
+
+**Target audience:** Compliance officers, security teams, auditors, legal counsel, regulated enterprises (financial services, healthcare, government), and platform vendors selling into those sectors.
+
+**What data is required:** Signed, chain-linked (Merkle-style) event records of agent actions and outcomes, so any single record's alteration is detectable. Write-once-read-many storage semantics for the evidence store. RFC 3161 trusted timestamps (or equivalent) for time-of-event proof. Authorization and approval chain records (who/what approved each consequential action). Declared capability records (manifest, permission scope) linked to observed side effects, so the record can show what was permitted vs what occurred. A comparable evidence-grade ladder so evidence strength can be assessed consistently across vendors.
+
+**Current state:** Vendor traces are mutable and vendor-specific; there is no standard for tamper-evident agent evidence. Adjacent efforts cover pieces (OTel for call telemetry, C2PA for content provenance, RFC 3161 for timestamps, Sigstore for signing) but none addresses agent behavior as an evidence artifact. Gap: an evidence-grade trace interchange format that preserves integrity guarantees end to end. Relevant prior work worth referencing: the [witnessos](https://github.com/narko4u/witnessos) evidence-grade ladder (E0 Declared -> E1 Observed -> E2 Enforced -> E3 Corroborated -> E4 Anchored, where E4 requires external TSA timestamping, Merkle checkpointing, and independent verifiability) offers a concrete reference model for grading evidence strength; [eu-ai-act-compliance-grade](https://github.com/narko4u/eu-ai-act-compliance-grade) maps agent evidence requirements to EU AI Act obligations.
+
+---
+
 ### F. Multi-Agent Systems
+
 
 #### F1. Tracing across agent boundaries
 
@@ -325,3 +338,35 @@ When adding use cases, consider:
 | H2. Training data | | |
 | H3. Benchmarking | | |
 | I1. Cross-surface identity resolution | | |
+
+
+---
+
+### Empire Labs Pty Ltd (Security Division) priorities
+
+| Use Case | Priority (Empire Labs) | Notes |
+|----------|------------------------|-------|
+| A1. Why did the agent do that? | Medium | Useful, well served by existing tools |
+| A2. Where did the agent get stuck? | Low | |
+| A3. Reproducing agent behavior | Low | |
+| B1. Session cost | Low | |
+| B2. Cost per outcome | Low | |
+| B3. Where is the waste? | Low | |
+| C1. Code attribution | Medium | |
+| C2. Security review | Medium | |
+| D1. Task performance | Low | |
+| D2. Regression detection | Low | |
+| D3. Model comparison | Low | |
+| E1. Agent side effects | **High** | Core of our evidence work |
+| E2. Scope enforcement | **High** | Declared vs observed enforcement |
+| E3. Audit trail | **High** | Primary product focus |
+| E4. Tamper-evident evidence (proposed) | **High** | See proposed use case above |
+| F1. Multi-agent tracing | **High** | Delegation chains across agents |
+| F2. Agent communication | Medium | |
+| G1. Real-time health | Medium | |
+| G2. Capacity planning | Low | |
+| H1. Failure discovery | Low | |
+| H2. Training data | Low | |
+| H3. Benchmarking | Medium | |
+
+**Summary for WG:** Empire Labs' priorities cluster in Safety and Compliance (E1-E4) and Multi-Agent Systems (F1), reflecting our focus on evidence-grade observability for regulated and enterprise deployments.
