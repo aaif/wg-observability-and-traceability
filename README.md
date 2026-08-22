@@ -8,6 +8,7 @@ New or returning contributors can get oriented from these links:
 
 - [Charter](charter/CHARTER.md) - mission, scope, deliverables, governance, and external coordination model.
 - [Working Methods](WORKING-METHODS.md) - how the WG tracks work, records decisions, reviews PRs, and keeps status discoverable.
+- [Liaison roster and cross-WG intake tracker](LIAISONS.md) - external and internal groups this WG coordinates with, current liaisons, and open inbound and outbound items.
 - [Prior work survey](working-documents/PRIOR-WORK.md) - current landscape survey for agent observability standards, tools, and adjacent efforts.
 - [Use cases](working-documents/USE-CASES.md) - shared inventory of why practitioners need agent observability and traceability.
 - [Open issues](https://github.com/aaif/wg-observability-and-traceability/issues) - current work items, coordination threads, and next steps.
