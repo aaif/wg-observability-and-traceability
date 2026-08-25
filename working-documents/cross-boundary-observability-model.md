@@ -2,7 +2,7 @@
 # Cross-Boundary Observability Model for Agentic Systems
 
 Status: Working draft for WG discussion and gap-analysis input
-Last updated: 2026-08-06
+Last updated: 2026-08-25
 
 ## 1. Purpose and Scope
 
@@ -81,18 +81,20 @@ For each boundary, the same fields should be inspectable:
 - Security and trust: what policy, consent, or permission applied?
 - Timing: how long did each stage take?
 
-## 5. Seed Boundary Matrix
+## 5. Boundary Requirements Matrix
 
-This matrix is intentionally incomplete. It is a seed for the WG gap-analysis process.
+This is a living requirements matrix for the WG gap-analysis process. Protocol-specific entries reflect [MCP 2026-07-28](https://modelcontextprotocol.io/specification/2026-07-28/) and [A2A 1.0](https://a2a-protocol.org/v1.0.0/specification/); implementation coverage still needs to be assessed separately.
 
-| Boundary | Identity | Context | Relationship | Lifecycle | Outcome | Provenance | Security |
-| :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- |
-| Agent -> Skill | Agent instance ID, skill name+version | Task params, conversation slice, invoking prompt/intent | Parent agent -> child skill invocation, call depth | invoked -> running -> returned/errored | Return value, side effects, tokens consumed | Skill source (built-in, org-registered, third-party), skill version hash | Permission scope skill was granted, sandbox/isolation level |
-| Skill -> Tool | ? | ? | ? | ? | ? | ? | ? |
-| Agent -> Agent | Both agent identities + principal each acts on behalf of | Shared task / session context, delegated sub-goal, budget/quota, memory refs | Delegator/delegate, spawned-by, fan-out siblings | submitted -> working -> input-required -> completed/failed/canceled | Artifact/result handed back, accepted or rejected by delegator | Which model/version made the delegation decision; agent card version | Auth between agents (mTLS/OAuth/SPIFFE), consent scope, downscoped token for further delegation |
-| Agent -> MCP Server | ? | ? | ? | ? | ? | ? | ? |
-| Agent -> A2A Peer | ? | ? | ? | ? | ? | ? | ? |
-| Agent -> Gateway or Runtime | ? | ? | ? | ? | ? | ? | ? |
+| Boundary | Identity | Context | Relationship | Lifecycle | Outcome | Provenance | Security | Timing |
+| :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- |
+| Agent -> Skill | Agent instance ID; skill ID, name, and version | Task parameters, selected conversation/context slice, invoking intent, constraints, budget | Parent agent -> child skill invocation; call depth; governing decision | discovered -> selected -> invoked -> running -> returned/errored/canceled | Return value or artifact, side effects, token/resource use, error details | Skill source and publisher, registry entry, version or content digest; producer and evidence class | Granted permission scope, approval decision, sandbox/isolation level, data-access policy | Selection, queue, start, first-output, and end timestamps; queue and execution duration; timeout, retry, and backoff time |
+| Skill -> Tool | Skill ID; tool name, version, server/endpoint | Arguments, input/output schema, task and trace context, constraints | Skill is caller-of-record; invocation links to governing skill/agent decision and resulting observation | discovered -> called -> executing -> input-required/completed/error/canceled/timeout | Structured/unstructured output, protocol or execution error, exit/status code, external side effects | Tool definition and registry/server source, publisher/approver, schema/version digest; producer and evidence class | Credential reference and scope (never secret value), authorization decision, confirmation, sandbox and egress policy | Request, execution-start, progress, first-result, and end timestamps; execution duration; timeout, retries, and backoff |
+| Agent -> Agent | Both agent identities and versions; principal each represents | Shared task/context IDs, delegated goal, messages/artifact refs, constraints, budget/quota, memory refs | Delegator/delegate; parent/child or referenced task; fan-out/fan-in; governing decision | proposed -> accepted/rejected -> working -> input-required/auth-required -> completed/failed/canceled | Artifact/result and status; partial completion; acceptance/rejection by delegator; error details | Agent description/card and provider, model/runtime version, delegation-decision record; producer and evidence class | Mutual authentication, authorization and consent scope, delegation depth, downscoped credentials, policy decisions | Discovery and negotiation latency; submit/accept/start/status/end timestamps; time to first update/artifact; active, waiting-for-input/auth, and total duration |
+| Agent -> MCP Server | ? | ? | ? | ? | ? | ? | ? | ? |
+| Agent -> A2A Peer | A2A client and remote agent identities/versions; represented principals; Agent Card provider; tenant | `messageId`, `taskId`, `contextId`, referenced tasks, parts/artifacts, accepted modes, extension and trace metadata | Client/server and delegator/delegate; message -> task -> artifact; related/refinement task links | message-only response or submitted -> working -> input-required/auth-required -> completed/failed/canceled/rejected; terminal tasks are immutable | Response message or task artifacts, status and status message, partial result, protocol error, acceptance/rejection | Agent Card, provider/version, supported interface/protocol version, extension URIs, card signature; producer and evidence class | TLS; declared auth scheme (API key, HTTP auth, OAuth/OIDC, mTLS); caller scopes, task authorization, consent/delegation scope, webhook verification | Send/acknowledge/start and status timestamps; time to first status/artifact; stream/poll/push delay; active, interrupted, and total task duration; cancellation/retry time |
+| Agent -> Gateway or Runtime | ? | ? | ? | ? | ? | ? | ? | ? |
+| Agent -> Human (HITL) | ? | ? | ? | ? | ? | ? | ? | ? |
+
 
 ## 6. How This Supports the AAIF Gap Analysis Work Package
 
@@ -114,25 +116,18 @@ Why this is additive now:
 
 ## 7. Candidate Outputs Enabled by This Model
 
-Ordered roughly from lowest to highest implementation effort.
+Given what's actually happening in the ecosystem right now, a few concrete, credible deliverables — roughly in order of effort:
+1. A gap-analysis reference document —The first place someone can look up "for boundary X, here's what should be carried, and here's which existing standard almost covers it, and here's the exact gap." 
+2. A submission to A2A's extension mechanism — since A2A already has a working extension slot and four precedent extensions (Secure Passport, Timestamp, Traceability, Agent Gateway Protocol), a fifth extension specifically for delegation-authority/consent-chain tracking is a realistic, scoped contribution — not a new protocol, a patch to an existing one.
+3. A reference middleware/interceptor library — a small SDK that sits at each boundary (MCP client, A2A client, gateway) and auto-populates the matrix fields into OTel spans. Given the market is already building auto-instrumentation for 40+ AI frameworks, positioning this as "the missing agent-to-agent layer" on top of existing instrumentation is more adoptable than a standalone spec.
+4. A conformance checklist / maturity model — turn the matrix into a scorecard ("does your gateway propagate delegation identity? Y/N — does it propagate consent scope? Y/N") that vendors or platform teams can self-assess against. This is the lightest-weight version and the fastest to produce, and it doubles as a procurement/audit tool for enterprises deploying multi-agent systems who need to answer "can we trace what our agents authorized each other to do" for compliance reasons.
 
-1. Gap-analysis reference annex
-	Boundary-by-boundary table of required fields, existing coverage, and explicit remaining gaps.
-
-2. Conformance checklist and maturity scorecard
-	Simple yes or no assessment for boundary propagation and trust-chain metadata.
-
-3. Targeted upstream extensions
-	Focused proposals to existing standards bodies (for example A2A extension for delegation-authority and consent-chain metadata, or OTel semantic additions where needed).
-
-4. Reference boundary interceptor pattern
-	Lightweight implementation guidance for propagating the agreed fields across MCP clients, A2A clients, and gateway surfaces.
 
 ## 8. Immediate Next Steps
 
 1. Pick the first three boundaries for deep analysis in the gap-analysis work package.
 2. Assign one owner per boundary and one cross-boundary editor.
 3. Define a coverage rubric (covered, partial, missing, non-portable).
-4. Produce a first filled matrix pass with citations to prior-work sources.
+4. Validate each matrix row against prior-work sources and record coverage, portability, and citation gaps.
 5. Review in WG and convert priority gaps into upstream action items.
 
