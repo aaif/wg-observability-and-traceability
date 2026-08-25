@@ -2,7 +2,7 @@
 
 **AAIF Observability Working Group**
 **Date:** 2026-03-15
-**Status:** Living document - last reviewed 2026-07-08; contributions welcome
+**Status:** Living document - last reviewed 2026-08-13; contributions welcome
 
 ---
 
@@ -22,6 +22,16 @@ Each use case follows a consistent structure:
 - **What data is required:** What the observability layer must capture to support this
 - **Current state:** How well existing tools/specs address this today
 
+### Cross-cutting telemetry requirements
+
+The following requirements apply across the use cases and are not repeated in every entry:
+
+- **Source and trust:** Telemetry should identify its producer and observation point, distinguishing agent self-reporting from framework, gateway, identity-provider, sandbox, operating-system, network, or security-sensor evidence. Where integrity matters, records should indicate available signing, attestation, or tamper-evidence mechanisms without implying that these prove completeness or truthfulness.
+- **Privacy and governance:** Content, identity, and correlation fields should carry enough policy metadata to enforce minimization, sensitivity classification, redaction, consent, access control, residency, retention, and deletion requirements. Raw credentials and secrets must not be captured.
+- **Completeness and sampling:** Records should declare applicable sampling decisions, dropped-event counts, collection gaps, and completeness requirements. Audit-required events must be distinguishable from telemetry that may be sampled or discarded.
+- **Schema evolution:** Telemetry should identify the schema, semantic-convention, instrumentation, agent, model, tool, and configuration versions needed to interpret historical records and compare behavior over time.
+- **Correlation and causality:** Implementations should provide stable identifiers and causal links across sessions, tasks, messages, delegations, tools, and artifacts. Ordering must not depend only on wall-clock timestamps or a single parent-child span tree, especially for concurrent, queued, suspended, or resumed work.
+
 ---
 
 ## Use Case Categories
@@ -30,11 +40,11 @@ Each use case follows a consistent structure:
 
 #### A1. Why did the agent do that?
 
-**Description:** An agent produced an unexpected output, took a wrong path, or failed to complete a task. The practitioner needs to reconstruct the agent's decision process - what it saw, what it considered, and why it chose the action it took.
+**Description:** An agent produced an unexpected output, took a wrong path, or failed to complete a task. The practitioner needs to reconstruct the observable decision context and action sequence - what information was available, which steps occurred, and what explicit plans or decision summaries guided them.
 
 **Target audience:** Developers building agent systems, SREs debugging production incidents, QA engineers investigating test failures.
 
-**What data is required:** Full conversation history (prompts and completions), tool call inputs/outputs, the agent's reasoning or chain-of-thought (where available), context window contents at each decision point.
+**What data is required:** Conversation history (prompts and completions, subject to capture policy), tool call inputs/outputs, explicit plans or decision summaries emitted by the agent, and the effective context or context-manifest metadata at each decision point. Private chain-of-thought is not required.
 
 **Current state:** LangSmith and Arize Phoenix provide good trace-level debugging for LLM calls. Gap: reconstructing the full session-level decision stream (not just individual calls) and understanding context management decisions (what was in the window, what was dropped).
 
@@ -54,7 +64,7 @@ Each use case follows a consistent structure:
 
 **Target audience:** Developers, QA engineers, researchers studying agent behavior.
 
-**What data is required:** Complete session trajectory including all inputs, model outputs, tool results, and environmental context. Ideally, enough to deterministically replay (though LLM non-determinism makes exact replay difficult).
+**What data is required:** Complete session trajectory including inputs, model outputs, tool results, model and agent configuration versions, and relevant environmental state or snapshots. This should support controlled replay or reconstruction; exact reproduction may remain impossible because of model and environment non-determinism.
 
 **Current state:** Most platforms capture enough for approximate replay. Gap: no standard format for session capture that enables cross-tool replay.
 
@@ -172,7 +182,7 @@ Each use case follows a consistent structure:
 
 **What data is required:** Complete record of all tool calls, permission decisions (what was requested vs. what was granted), policy metadata (what the agent was authorized to do).
 
-**Current state:** Most agent frameworks have permission systems, but there's no standard for logging permission decisions alongside agent traces. [OCSF](https://schema.ocsf.io/) is relevant prior art for security event modeling, but agent-specific scope and policy decisions are not yet standardized.
+**Current state:** Most agent frameworks have permission systems, but conventions for logging permission decisions alongside agent traces are inconsistent. [OCSF 1.9](https://schema.ocsf.io/1.9.0/) provides relevant AI Operation, actor, authorization, and delegation structures for security events. Gap: practical mappings between those events, agent-framework permission models, and OTel traces.
 
 #### E3. Audit trail for regulated environments
 
@@ -180,13 +190,26 @@ Each use case follows a consistent structure:
 
 **Target audience:** Compliance teams in regulated industries (finance, healthcare, government), legal teams.
 
-**What data is required:** Immutable session records, user identity, delegation-of-authority records, approval chains, human-in-the-loop checkpoints, policy-check outcomes, complete action logs, timestamps, data lineage, and enough evidence to satisfy audit-log requirements such as [EU AI Act Article 12](https://artificialintelligenceact.eu/article/12/).
+**What data is required:** Append-only or tamper-evident session records, user and agent identity, delegation-of-authority records, approval chains, human-in-the-loop checkpoints, policy-check outcomes, complete action logs, timestamps, data lineage, telemetry-source metadata, and explicit sampling or collection-gap indicators. Retention and access controls must support applicable audit-log requirements such as [EU AI Act Article 12](https://artificialintelligenceact.eu/article/12/).
 
-**Current state:** No standard addresses this specifically. Teams in regulated industries build bespoke solutions. Relevant prior art includes the [IETF Agent Audit Trail draft](https://datatracker.ietf.org/doc/draft-sharif-agent-audit-trail/) and [OCSF](https://schema.ocsf.io/) for security/compliance event modeling, but the agent-specific audit trail remains an open gap.
+**Current state:** Teams in regulated industries still assemble bespoke solutions. [OCSF 1.9](https://schema.ocsf.io/1.9.0/) provides AI-specific event, delegation, and record-integrity structures, while OTel provides execution traces. Gap: a broadly adopted profile that combines complete agent-action coverage, approvals, trustworthy collection, retention, and trace correlation for audit use.
+
+---
+
+#### E4. Tamper-evident evidence for audit and dispute resolution
+
+**Description:** A regulated organization must demonstrate, after the fact, what an agent actually did - which tools it called, what side effects occurred in the world, who approved each step, and under what authorization - in a way that is tamper-evident and admissible as evidence. This goes beyond debugging traces: the record must be resistant to modification (by the vendor, the operator, or the agent itself), independently verifiable, and time-bound.
+
+**Target audience:** Compliance officers, security teams, auditors, legal counsel, regulated enterprises (financial services, healthcare, government), and platform vendors selling into those sectors.
+
+**What data is required:** Signed, chain-linked (Merkle-style) event records of agent actions and outcomes, so any single record's alteration is detectable. Write-once-read-many storage semantics for the evidence store. RFC 3161 trusted timestamps (or equivalent) for time-of-event proof. Authorization and approval chain records (who/what approved each consequential action). Declared capability records (manifest, permission scope) linked to observed side effects, so the record can show what was permitted vs what occurred. A comparable evidence-grade ladder so evidence strength can be assessed consistently across vendors.
+
+**Current state:** Vendor traces are mutable and vendor-specific; there is no standard for tamper-evident agent evidence. Adjacent efforts cover pieces (OTel for call telemetry, C2PA for content provenance, RFC 3161 for timestamps, Sigstore for signing) but none addresses agent behavior as an evidence artifact. Gap: an evidence-grade trace interchange format that preserves integrity guarantees end to end. Relevant prior work worth referencing: the [witnessos](https://github.com/narko4u/witnessos) evidence-grade ladder (E0 Declared -> E1 Observed -> E2 Enforced -> E3 Corroborated -> E4 Anchored, where E4 requires external TSA timestamping, Merkle checkpointing, and independent verifiability) offers a concrete reference model for grading evidence strength; [eu-ai-act-compliance-grade](https://github.com/narko4u/eu-ai-act-compliance-grade) maps agent evidence requirements to EU AI Act obligations.
 
 ---
 
 ### F. Multi-Agent Systems
+
 
 #### F1. Tracing across agent boundaries
 
@@ -196,7 +219,7 @@ Each use case follows a consistent structure:
 
 **What data is required:** Session-to-session linking (parent/child relationships), shared context tracking, delegation metadata (why this sub-agent was invoked, what it was asked to do).
 
-**Current state:** OTel distributed tracing provides the basic propagation model (trace context). The OTel #2664 proposal addresses agent teams. The [A2A traceability extension](https://github.com/a2aproject/a2a-samples/blob/main/extensions/traceability/v1/spec.md) is relevant prior art for propagating trace context across agent boundaries. Gap: practical conventions for multi-agent tracing that work across frameworks.
+**Current state:** OTel distributed tracing provides the basic propagation model, and the OTel #2664 proposal addresses agent teams. The experimental [A2A traceability extension](https://github.com/a2aproject/a2a-samples/blob/main/extensions/traceability/v1/spec.md) can return a custom nested agent/tool trace in message or artifact metadata, but it does not define W3C Trace Context propagation. Gap: practical propagation and correlation conventions that work across agent protocols and frameworks.
 
 #### F2. Understanding agent-to-agent communication
 
@@ -206,7 +229,7 @@ Each use case follows a consistent structure:
 
 **What data is required:** Inter-agent message content, shared state changes, causal links between agent actions.
 
-**Current state:** Largely unaddressed by existing specs. The OTel #2664 proposal's "team" concept is a starting point, and the [A2A traceability extension](https://github.com/a2aproject/a2a-samples/blob/main/extensions/traceability/v1/spec.md) is relevant prior art for agent-to-agent communication semantics and trace propagation.
+**Current state:** Largely unaddressed by existing specs. The OTel #2664 proposal's "team" concept is a starting point. The experimental [A2A traceability extension](https://github.com/a2aproject/a2a-samples/blob/main/extensions/traceability/v1/spec.md) exposes nested invocation details, but does not standardize message meaning, causal influence, authenticated identity, or delegated authority.
 
 ---
 
@@ -242,7 +265,7 @@ Each use case follows a consistent structure:
 
 **Target audience:** ML researchers, agent developers trying to improve systems, red teams.
 
-**What data is required:** Rich session data (full content) that can be analyzed with open-ended methods (LLM-based analysis, clustering, manual review). This requires more than structured metrics - it requires the raw behavioral record.
+**What data is required:** Rich session data, including content where policy permits, that can be analyzed with open-ended methods (LLM-based analysis, clustering, manual review). This requires more than structured metrics, plus sensitivity labels, redaction state, access controls, and retention metadata for the behavioral record.
 
 **Current state:** Requires access to full session data, which most tracing tools capture but don't expose in a format designed for this kind of analysis.
 
@@ -268,12 +291,26 @@ Each use case follows a consistent structure:
 
 ---
 
+### I. Identity and Ownership
+
+#### I1. Cross-surface identity resolution
+
+**Description:** A single person's (or task's) agent activity is spread across multiple surfaces (IDE, CLI, CI, cloud execution), harnesses, and model providers, each with its own notion of "who" ran the agent - an API key, an OAuth subject, a service account, or an anonymous session. The practitioner needs to resolve all of that activity to a canonical initiating actor (the person, service, or upstream agent that started the work) and to the accountable owner (the organizational unit responsible for its cost and risk), consistently across surfaces and over time.
+
+**Target audience:** Platform teams, security and compliance officers, finance/FinOps teams, engineering managers accountable for agent spend and risk.
+
+**What data is required:** A stable actor identifier per session; the principal reference used on each surface (API key ID, OAuth subject, service-account ID). **Identity:** a mapping from those principals to a canonical initiating actor (person, service, or upstream agent). **Delegation:** the on-behalf-of chain linking them (initiator -> agent -> sub-agent -> tool). **Ownership:** the accountable organizational unit (team, cost center), which may differ from the actor that performed the action.
+
+**Current state:** Assumed but largely unaddressed as an observability concern in its own right. Audit-focused use cases (E3) list "user identity" as required data, and cost use cases (B1, B2) are only meaningful once activity is attributed to an owner, yet no convention specifies how to resolve one actor across surfaces, harnesses, and providers. [OCSF](https://schema.ocsf.io/) models actors and identities for security events and is relevant prior art; OAuth/OIDC subjects and service-account principals are the raw inputs. Gap: a portable way to carry a resolved identity (and its delegation chain) through the trace, so cost, audit, and attribution use cases share one owner definition rather than each re-deriving it.
+
+---
+
 ## Contributing
 
 This document is maintained by the Observability Working Group. To add a use case:
 
 1. Choose the appropriate category (A-H) or propose a new one
-2. Follow the template: Description, Who cares, What data is required, Current state
+2. Follow the template: Description, Target audience, What data is required, Current state
 3. Submit via the working group's contribution process
 
 When adding use cases, consider:
@@ -310,3 +347,36 @@ When adding use cases, consider:
 | H1. Failure discovery | | |
 | H2. Training data | | |
 | H3. Benchmarking | | |
+| I1. Cross-surface identity resolution | | |
+
+
+---
+
+### Empire Labs Pty Ltd (Security Division) priorities
+
+| Use Case | Priority (Empire Labs) | Notes |
+|----------|------------------------|-------|
+| A1. Why did the agent do that? | Medium | Useful, well served by existing tools |
+| A2. Where did the agent get stuck? | Low | |
+| A3. Reproducing agent behavior | Low | |
+| B1. Session cost | Low | |
+| B2. Cost per outcome | Low | |
+| B3. Where is the waste? | Low | |
+| C1. Code attribution | Medium | |
+| C2. Security review | Medium | |
+| D1. Task performance | Low | |
+| D2. Regression detection | Low | |
+| D3. Model comparison | Low | |
+| E1. Agent side effects | **High** | Core of our evidence work |
+| E2. Scope enforcement | **High** | Declared vs observed enforcement |
+| E3. Audit trail | **High** | Primary product focus |
+| E4. Tamper-evident evidence (proposed) | **High** | See proposed use case above |
+| F1. Multi-agent tracing | **High** | Delegation chains across agents |
+| F2. Agent communication | Medium | |
+| G1. Real-time health | Medium | |
+| G2. Capacity planning | Low | |
+| H1. Failure discovery | Low | |
+| H2. Training data | Low | |
+| H3. Benchmarking | Medium | |
+
+**Summary for WG:** Empire Labs' priorities cluster in Safety and Compliance (E1-E4) and Multi-Agent Systems (F1), reflecting our focus on evidence-grade observability for regulated and enterprise deployments.
