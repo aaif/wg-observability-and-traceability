@@ -53,7 +53,6 @@ This refresh keeps the March 2026 landscape structure but updates the areas wher
 | **Monocle (LF AI & Data)** | GenAI auto-instrumentation framework | Early, active (v0.8.4) | Open (Apache 2.0) | Broadest framework auto-instrumentation |
 | **AGNTCY** | Multi-agent interop + observability | Active; Observe SDK 1.0.43 | Open (Apache 2.0) | Cross-agent context propagation |
 | **A2A** | Agent-to-agent protocol (v1.0, Mar 2026); signed agent cards, task delegation | Production (Huawei Celia, WeChat, Google Cloud ADK, Azure AI Foundry, AWS Bedrock AgentCore, PayPal) | Open (Apache 2.0) | Cross-vendor agent interoperability; signed agent identity |
-| **agentgateway** | Traffic mediation/control between agents and infrastructure (MCP + A2A) | One-click deployable on AWS/Azure/GCP marketplaces | Open (Apache 2.0) | Central enforcement point for declared-vs-observed policy |
 | **OCSF** | Security events, AI operations, agent identity, delegation, record integrity | Production schema; agent-specific profile in v1.9 | Open | Normalized security evidence for agent actions |
 | **A2A traceability extension** | Response traces embedded in A2A messages and artifacts | Experimental sample extension | Open | Cross-agent return of nested agent/tool steps |
 | **OpenLIT** | OTel-native LLM observability | Production | Open | Follows OTel semconv closely |
@@ -617,16 +616,13 @@ Several academic papers have surveyed or contributed to the agent observability 
 
 ---
 
-### 18. A2A (Agent-to-Agent protocol) and agentgateway
+### 18. A2A (Agent-to-Agent protocol)
 
 [A2A](https://github.com/a2aproject/A2A) is the agent-to-agent interoperability protocol that joined AAIF as a hosted project in August 2026 (Google-launched April 2025; IBM's ACP merged August 2025; v1.0 March 2026). It standardizes agent discovery, task delegation, and exchange between agents across vendors. The agent card (`.well-known/agent-card.json`, RFC 8615) carries declared capabilities, auth requirements, and a signed identity.
 
-[agentgateway](https://github.com/solo-io/agentgateway) (solo.io, joined AAIF June 2026) is a traffic mediation and control plane between agents and infrastructure, handling MCP and A2A traffic, with one-click deployment on AWS/Azure/GCP marketplaces.
+**Observability relevance:** A2A is the inter-agent boundary the WG already tracks (protocol-aware tracing across MCP and A2A appears in OTel GenAI, AOS, and AGNTCY). The observability-relevant property that stands out:
 
-**Observability relevance:** A2A is the inter-agent boundary the WG already tracks (protocol-aware tracing across MCP and A2A appears in OTel GenAI, AOS, and AGNTCY). Two observability-relevant properties stand out:
-
-- **Signed agent cards create a verification surface.** A2A v1.0 signs cards, but identity verification of card claims against runtime behaviour is an open problem tracked in [a2aproject/A2A issue #1672](https://github.com/a2aproject/A2A/issues/1672). Signatures prove *who published* a card, not that the agent *behaves as declared*. This maps to the WG's "passive observability vs enforcement" tension: declared capabilities (card) vs observed capability use (trace) vs enforced policy (agentgateway boundary).
-- **agentgateway is a natural enforcement point.** If declared-vs-observed reconciliation is the gap, the gateway boundary is where policy checks can compare requested actions against declared capabilities - the E2 layer in an evidence ladder (declared -> observed -> enforced -> corroborated -> anchored).
+- **Signed agent cards create a verification surface.** A2A v1.0 signs cards, but identity verification of card claims against runtime behaviour is an open problem tracked in [a2aproject/A2A issue #1672](https://github.com/a2aproject/A2A/issues/1672). Signatures prove *who published* a card, not that the agent *behaves as declared*. This maps to the WG's "passive observability vs enforcement" tension: declared capabilities (card) vs observed capability use (trace).
 
 **Interaction opportunity:** Medium. The A2A issue tracker explicitly invites a standardized identity-verification mechanism. The WG's gap analysis could name this as an upstream contribution opportunity, and the "evidence layer" (who verifies declarations and can prove it later) is currently unclaimed across the hosted stack.
 
