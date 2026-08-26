@@ -198,7 +198,7 @@ An Agent → Tool / local CLI implementation can be assessed with the following 
 11. **Lifecycle and outcome:** Spawn failure, non-zero exit, timeout, cancellation, retry and background completion are distinguishable.
 12. **Privacy and security:** Sensitive arguments, credentials and Baggage are not propagated or recorded by default; child environments are allowlisted and escaped safely.
 13. **Fail-open policy:** Observability-state failure does not block the user command unless an explicit enforcement policy says otherwise.
-14. **Evidence source:** Records identify whether they came from the agent runtime, hook, OS/process observer or child instrumentation; any integrity guarantee is stated explicitly.
+14. **Evidence source and assurance:** Records identify the observer, observation point, how directly the source observed the action and the assurance level. Agent-runtime declarations, hook reservations, OS/process observations and child instrumentation remain distinguishable, and any integrity guarantee is stated explicitly.
 
 ## 8. Open gaps and coordinate-first recommendations
 
@@ -234,7 +234,7 @@ The OpenTelemetry GenAI repository already includes an execute-tool coverage rep
 
 ### 8.5 Treat evidence integrity as cross-cutting
 
-Trace continuity does not prove that agent-side or child-side records are complete or trustworthy. A future conformance model should record observer identity, observation point and assurance level, and should distinguish ordinary telemetry consistency from tamper-evident evidence. This should be coordinated with the Agent → MCP Server deep-dive and existing security/event-integrity work rather than specified independently here.
+Trace continuity does not prove that agent-side or child-side records are complete or trustworthy. A future conformance model should record observer identity, observation point, how directly the source observed the action and the assurance level, and should distinguish ordinary telemetry consistency from tamper-evident evidence. This cross-cutting representation is tracked in [issue #36](https://github.com/aaif/wg-observability-and-traceability/issues/36) and should be coordinated with the Agent → MCP Server deep-dive and existing security/event-integrity work rather than specified independently here.
 
 ## 9. Review questions
 
