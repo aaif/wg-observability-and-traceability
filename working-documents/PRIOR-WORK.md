@@ -14,7 +14,7 @@ This is not a competitive ranking - many of these efforts address different face
 
 ## Context: The AAIF and This Working Group
 
-The Agentic AI Foundation (AAIF), formed in December 2025 under the Linux Foundation, is the home of MCP, goose, AGENTS.md, Agentgateway, and AGNTCY (multi-agent standards for discovery, identity, messaging, and observability). Its platinum members include AWS, Anthropic, Block, Bloomberg, Cloudflare, Google, Microsoft, and OpenAI, with 97+ additional members including Cisco, Datadog, Docker, IBM, JetBrains, Okta, Oracle, Salesforce, SAP, and Shopify. The Observability Working Group operates under this umbrella, with the mandate to survey, coordinate, and where appropriate standardize agent observability across the AAIF community.
+The Agentic AI Foundation (AAIF), formed in December 2025 under the Linux Foundation, is the home of MCP, goose, AGENTS.md, Agentgateway, A2A (agent-to-agent interoperability, joined August 2026), and AGNTCY (multi-agent standards for discovery, identity, messaging, and observability). Its platinum members include AWS, Anthropic, Block, Bloomberg, Cloudflare, Google, Microsoft, and OpenAI, with 97+ additional members including Cisco, Datadog, Docker, IBM, JetBrains, Okta, Oracle, Salesforce, SAP, and Shopify. The Observability Working Group operates under this umbrella, with the mandate to survey, coordinate, and where appropriate standardize agent observability across the AAIF community.
 
 We are not starting from scratch. As this survey shows, there is substantial prior work across multiple organizations and standards bodies. Our job is to understand what exists, identify gaps, and determine where AAIF can add the most value - whether that's adopting existing standards, extending them, or filling genuinely unaddressed needs.
 
@@ -52,6 +52,7 @@ This refresh keeps the March 2026 landscape structure but updates the areas wher
 | **Helicone** | Proxy-based LLM observability | Production | Open source | Zero-SDK integration, 2B+ interactions |
 | **Monocle (LF AI & Data)** | GenAI auto-instrumentation framework | Early, active (v0.8.4) | Open (Apache 2.0) | Broadest framework auto-instrumentation |
 | **AGNTCY** | Multi-agent interop + observability | Active; Observe SDK 1.0.43 | Open (Apache 2.0) | Cross-agent context propagation |
+| **A2A** | Agent-to-agent protocol (v1.0, Mar 2026); signed agent cards, task delegation | Production (Huawei Celia, WeChat, Google Cloud ADK, Azure AI Foundry, AWS Bedrock AgentCore, PayPal) | Open (Apache 2.0) | Cross-vendor agent interoperability; signed agent identity |
 | **OCSF** | Security events, AI operations, agent identity, delegation, record integrity | Production schema; agent-specific profile in v1.9 | Open | Normalized security evidence for agent actions |
 | **A2A traceability extension** | Response traces embedded in A2A messages and artifacts | Experimental sample extension | Open | Cross-agent return of nested agent/tool steps |
 | **OpenLIT** | OTel-native LLM observability | Production | Open | Follows OTel semconv closely |
@@ -612,6 +613,29 @@ Several academic papers have surveyed or contributed to the agent observability 
 - **["Governance-Aware Agent Telemetry for Closed-Loop Enforcement in Multi-Agent AI Systems"](https://arxiv.org/abs/2604.05119)** (arXiv:2604.05119, Apr 2026) - Proposes extending OTel with governance attributes, real-time OPA-compatible policy detection, an enforcement bus, and cryptographic provenance.
 
 **Relevance to the working group:** The academic literature confirms that goal tracing, plan tracing, and audit-grade session records are gaps across the landscape. These findings should inform our use case prioritization.
+
+---
+
+### 18. A2A (Agent-to-Agent protocol)
+
+[A2A](https://github.com/a2aproject/A2A) is the agent-to-agent interoperability protocol that joined AAIF as a hosted project in August 2026 (Google-launched April 2025; IBM's ACP merged August 2025; v1.0 March 2026). It standardizes agent discovery, task delegation, and exchange between agents across vendors. The agent card (`.well-known/agent-card.json`, RFC 8615) carries declared capabilities, auth requirements, and a signed identity.
+
+**Observability relevance:** A2A is the inter-agent boundary the WG already tracks (protocol-aware tracing across MCP and A2A appears in OTel GenAI, AOS, and AGNTCY). The observability-relevant property that stands out:
+
+- **Signed agent cards create a verification surface.** A2A v1.0 signs cards, but identity verification of card claims against runtime behaviour is an open problem tracked in [a2aproject/A2A issue #1672](https://github.com/a2aproject/A2A/issues/1672). Signatures prove *who published* a card, not that the agent *behaves as declared*. This maps to the WG's "passive observability vs enforcement" tension: declared capabilities (card) vs observed capability use (trace).
+
+**Interaction opportunity:** Medium. The A2A issue tracker explicitly invites a standardized identity-verification mechanism. The WG's gap analysis could name this as an upstream contribution opportunity, and the "evidence layer" (who verifies declarations and can prove it later) is currently unclaimed across the hosted stack.
+
+**Prior work relevant to this gap** (open-source, Apache-2.0, declared-vs-observed):
+
+| Project | What it contributes to the landscape |
+|---|---|
+| `mcp-evidence-validator` (Empire Labs) | Declared-vs-observed checks for MCP servers with a tamper-evident SHA-256 ledger; roadmap includes A2A agent-card validation (v0.3) extending the same model to the agent-to-agent boundary |
+| `mcp-governance-risks-framework` (Empire Labs) | Structured risk framework for MCP deployments - governance, trust-boundary, and supply-chain risk surfaces |
+| `witnessos` (Empire Labs) | Public promotional repo for the evidence-grade compliance product; E0-E4 evidence grades + external anchoring (TSA timestamp, Merkle checkpoint) |
+| OWASP Agent Observability Standard (AOS) | Instrumentation specs for A2A and MCP observability - complementary, protocol-level |
+
+These are reference points, not a pitch: declared-vs-observed is a measurement method that composes with every layer of the stack without displacing any of them.
 
 ---
 
