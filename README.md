@@ -19,6 +19,8 @@ If you want to help, start with the open issues. Each active issue should identi
 
 GitHub issues are the source of truth for durable status. Meeting notes, Slack, Discord, Google Docs, and email should link back to issues or PRs when they create or update work.
 
+Planning for the Agent Behavior Trace Model recommendation is tracked in the [Trace Model Recommendation Plan](TRACE_MODEL_RECOMMENDATION_PLAN.md).
+
 ## Mission
 
 The Observability & Traceability Working Group advances the Agentic AI Foundation's mission by convening practitioners, vendors, and standards bodies to build a shared understanding of agent observability — aligning existing efforts, identifying gaps, and producing guidance or specifications only where no existing body is addressing the need. The working group focuses on the intersection of agent behavior, reasoning, and execution with observable signals and trace structures, with a particular emphasis on interoperability across frameworks and tools.
