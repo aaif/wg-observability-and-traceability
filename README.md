@@ -10,6 +10,7 @@ New or returning contributors can get oriented from these links:
 - [Working Methods](WORKING-METHODS.md) - how the WG tracks work, records decisions, reviews PRs, and keeps status discoverable.
 - [Prior work survey](working-documents/PRIOR-WORK.md) - current landscape survey for agent observability standards, tools, and adjacent efforts.
 - [Use cases](working-documents/USE-CASES.md) - shared inventory of why practitioners need agent observability and traceability.
+- [Agent Behavior Trace Model execution plan](working-documents/AGENT-BEHAVIOR-TRACE-MODEL-EXECUTION-PLAN.md) - the nine-task plan of record following the August WG discussions.
 - [Open issues](https://github.com/aaif/wg-observability-and-traceability/issues) - current work items, coordination threads, and next steps.
 - [Open pull requests](https://github.com/aaif/wg-observability-and-traceability/pulls) - documents and changes currently under review.
 - [Meeting minutes](meeting-minutes/) - published summaries and action items.
