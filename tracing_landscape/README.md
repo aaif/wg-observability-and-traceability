@@ -54,6 +54,9 @@ How the Linux kernel exposes its behavior — the mechanisms that make OS-level 
 | [linux-driver-tracing.md](02-kernel-tracing/linux-driver-tracing.md) | Linux Driver Tracing (extended) | Complete mechanism catalog for driver debugging and observation |
 | [virtualization.md](02-kernel-tracing/virtualization.md) | Virtualization Tracing | Hypervisor pre-emption distorts guest timestamps; KVM/VFIO tracepoints expose stolen time and device passthrough boundaries |
 | [orchestration.md](02-kernel-tracing/orchestration.md) | Container Orchestration Tracing | CFS throttling and cgroup bandwidth limits create timing gaps invisible to application traces; scheduler tracepoints expose the truth |
+| [tracy.md](02-kernel-tracing/tracy.md) | Tracy Profiler | Hybrid frame profiler: compile-time zones + sampling, live client→server streaming, GPU/CPU/lock/memory on one timeline |
+| [sysdig.md](02-kernel-tracing/sysdig.md) | sysdig (OSS) | System-level syscall tracer on the Falco libs/drivers; records/replays `.scap`, container/k8s-enriched |
+| [falco.md](02-kernel-tracing/falco.md) | Falco | Runtime security detection: kernel syscall stream (eBPF/kmod) → YAML rules engine → prioritized alerts; sysdig's detection sibling |
 
 ### 03 — Hardware Accelerators
 
