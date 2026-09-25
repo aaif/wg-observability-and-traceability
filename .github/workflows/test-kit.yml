@@ -1,0 +1,27 @@
+name: test-kit
+
+on:
+  pull_request:
+    paths: ["test-kit/**", ".github/workflows/test-kit.yml"]
+  push:
+    branches: [main]
+    paths: ["test-kit/**", ".github/workflows/test-kit.yml"]
+
+permissions:
+  contents: read
+
+jobs:
+  cases:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r test-kit/requirements.txt
+      - name: The fixtures match a rebuild from the seed
+        run: python3 test-kit/generate.py --check
+      - name: Every case answers as expected
+        run: python3 test-kit/run.py
+      - name: A reader that trusts the producer fails every discriminating case
+        run: python3 test-kit/run.py --reader naive --expect-fail
