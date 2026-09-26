@@ -348,35 +348,3 @@ When adding use cases, consider:
 | H2. Training data | | |
 | H3. Benchmarking | | |
 | I1. Cross-surface identity resolution | | |
-
-
----
-
-### Empire Labs Pty Ltd (Security Division) priorities
-
-| Use Case | Priority (Empire Labs) | Notes |
-|----------|------------------------|-------|
-| A1. Why did the agent do that? | Medium | Useful, well served by existing tools |
-| A2. Where did the agent get stuck? | Low | |
-| A3. Reproducing agent behavior | Low | |
-| B1. Session cost | Low | |
-| B2. Cost per outcome | Low | |
-| B3. Where is the waste? | Low | |
-| C1. Code attribution | Medium | |
-| C2. Security review | Medium | |
-| D1. Task performance | Low | |
-| D2. Regression detection | Low | |
-| D3. Model comparison | Low | |
-| E1. Agent side effects | **High** | Core of our evidence work |
-| E2. Scope enforcement | **High** | Declared vs observed enforcement |
-| E3. Audit trail | **High** | Primary product focus |
-| E4. Tamper-evident evidence (proposed) | **High** | See proposed use case above |
-| F1. Multi-agent tracing | **High** | Delegation chains across agents |
-| F2. Agent communication | Medium | |
-| G1. Real-time health | Medium | |
-| G2. Capacity planning | Low | |
-| H1. Failure discovery | Low | |
-| H2. Training data | Low | |
-| H3. Benchmarking | Medium | |
-
-**Summary for WG:** Empire Labs' priorities cluster in Safety and Compliance (E1-E4) and Multi-Agent Systems (F1), reflecting our focus on evidence-grade observability for regulated and enterprise deployments.
