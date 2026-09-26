@@ -204,8 +204,6 @@ The following requirements apply across the use cases and are not repeated in ev
 
 **What data is required:** Signed, chain-linked (Merkle-style) event records of agent actions and outcomes, so any single record's alteration is detectable. Write-once-read-many storage semantics for the evidence store. RFC 3161 trusted timestamps (or equivalent) for time-of-event proof. Authorization and approval chain records (who/what approved each consequential action). Declared capability records (manifest, permission scope) linked to observed side effects, so the record can show what was permitted vs what occurred. A comparable evidence-grade ladder so evidence strength can be assessed consistently across vendors.
 
-**Current state:** Vendor traces are mutable and vendor-specific; there is no standard for tamper-evident agent evidence. Adjacent efforts cover pieces (OTel for call telemetry, C2PA for content provenance, RFC 3161 for timestamps, Sigstore for signing) but none addresses agent behavior as an evidence artifact. Gap: an evidence-grade trace interchange format that preserves integrity guarantees end to end. Relevant prior work worth referencing: the [witnessos](https://github.com/narko4u/witnessos) evidence-grade ladder (E0 Declared -> E1 Observed -> E2 Enforced -> E3 Corroborated -> E4 Anchored, where E4 requires external TSA timestamping, Merkle checkpointing, and independent verifiability) offers a concrete reference model for grading evidence strength; [eu-ai-act-compliance-grade](https://github.com/narko4u/eu-ai-act-compliance-grade) maps agent evidence requirements to EU AI Act obligations.
-
 ---
 
 ### F. Multi-Agent Systems
