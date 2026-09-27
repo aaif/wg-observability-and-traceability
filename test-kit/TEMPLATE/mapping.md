@@ -18,5 +18,6 @@ capability is recorded here; it is never reported as a passing case.
 
 ## Your case
 
-A focused example needs only `records.otlp.json` (an OTLP/JSON trace export) and `expected.json`
-(the answer a correct reader derives from it). It does not need a complete application.
+A focused example needs only `records.otlp.json` (an OTLP/JSON trace export), `expected.json`
+(the answer a correct reader derives from it) and `basis.json` (the document that answer follows:
+`answer_follows.document`, `.section` and `.url`). It does not need a complete application.

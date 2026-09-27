@@ -1,0 +1,11 @@
+{
+  "answer_follows": {
+    "document": "Agent to MCP Server boundary deep dive (pull request #32)",
+    "section": "3.3 Evidence grades are established by the consumer, not the producer",
+    "url": "https://github.com/aaif/wg-observability-and-traceability/blob/41e6eacc2fc6bf783f45d873c3d01eb7dd0f9560/working-documents/agent-mcp-server-boundary-deep-dive.md",
+    "outside": {
+      "document": "Agent Behavior Trace Model shared contract, v0.7-draft (pull request #51)",
+      "why": "section 1 treats a service-side receipt as correlation evidence, not cryptographic attestation, so a reader built to v0.7-draft has no rule that decides this case"
+    }
+  }
+}

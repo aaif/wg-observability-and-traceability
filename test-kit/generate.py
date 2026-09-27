@@ -122,6 +122,35 @@ def _export(agent: list[dict], service: list[dict]) -> dict:
     return {"resourceSpans": blocks}
 
 
+ISSUE_42 = {
+    "document": "Trace model: build shared tests and a contribution template (issue #42)",
+    "section": "the example in the issue body",
+    "url": "https://github.com/aaif/wg-observability-and-traceability/issues/42",
+    "also_stated_in": {
+        "document": "Agent Behavior Trace Model shared contract, v0.7-draft (pull request #51)",
+        "section": "1. Purpose",
+        "url": "https://github.com/aaif/wg-observability-and-traceability/blob/"
+        "e82abf1e58b066c586c25767edfba862c4ebd027/working-documents/AGENT-BEHAVIOR-TRACE-MODEL-CONTRACT.md",
+    },
+}
+DEEP_DIVE_3_3 = {
+    "document": "Agent to MCP Server boundary deep dive (pull request #32)",
+    "section": "3.3 Evidence grades are established by the consumer, not the producer",
+    "url": "https://github.com/aaif/wg-observability-and-traceability/blob/"
+    "41e6eacc2fc6bf783f45d873c3d01eb7dd0f9560/working-documents/agent-mcp-server-boundary-deep-dive.md",
+    "outside": {
+        "document": "Agent Behavior Trace Model shared contract, v0.7-draft (pull request #51)",
+        "why": "section 1 treats a service-side receipt as correlation evidence, not cryptographic "
+        "attestation, so a reader built to v0.7-draft has no rule that decides this case",
+    },
+}
+
+
+def _basis(answer_follows: dict) -> dict:
+    """The document a case's expected answer follows, for a reader that must not read expected.json."""
+    return {"answer_follows": answer_follows}
+
+
 def build() -> dict[Path, bytes]:
     """Every file this script owns, keyed by path, as the bytes it should hold."""
     cases = {
@@ -130,27 +159,32 @@ def build() -> dict[Path, bytes]:
                                          _receipt("00000000000000a2", 900, "R-1")]),
             {"action": "P1", "effect": "confirmed", "confirmed_tickets": ["T-1042"],
              "externally_verified": True},
+            ISSUE_42,
         ),
         "effects-receipt-missing": (
             _export(_agent_spans(True), []),
             {"action": "P1", "effect": "unconfirmed", "confirmed_tickets": None,
              "externally_verified": False},
+            ISSUE_42,
         ),
         "evidence-grade-pair-verifies": (
             _export(_agent_spans(True), [_receipt("00000000000000b1", 400, "R-7")]),
             {"action": "P1", "effect": "confirmed", "confirmed_tickets": ["T-1042"],
              "externally_verified": True},
+            DEEP_DIVE_3_3,
         ),
         "evidence-grade-pair-fails": (
             _export(_agent_spans(True), [_receipt("00000000000000b1", 400, "R-7", tamper=True)]),
             {"action": "P1", "effect": "unconfirmed", "confirmed_tickets": None,
              "externally_verified": False},
+            DEEP_DIVE_3_3,
         ),
     }
     files: dict[Path, bytes] = {}
-    for name, (records, expected) in cases.items():
+    for name, (records, expected, follows) in cases.items():
         files[CASES / name / "records.otlp.json"] = (json.dumps(records, indent=2) + "\n").encode()
         files[CASES / name / "expected.json"] = (json.dumps(expected, indent=2) + "\n").encode()
+        files[CASES / name / "basis.json"] = (json.dumps(_basis(follows), indent=2) + "\n").encode()
     public = _key().public_key().public_bytes(
         serialization.Encoding.PEM, serialization.PublicFormat.SubjectPublicKeyInfo)
     files[TRUST / f"{SERVICE}.pub.pem"] = public

@@ -109,6 +109,15 @@ def naive(export: dict, action: str, _key) -> dict:
 READERS = {"reference": reference, "naive": naive}
 
 
+def _has_basis(case: Path) -> bool:
+    """Whether a case names the document its expected answer follows."""
+    try:
+        follows = json.loads((case / "basis.json").read_text())["answer_follows"]
+    except (OSError, ValueError, KeyError, TypeError):
+        return False
+    return bool(follows.get("document")) and bool(follows.get("url"))
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="Run the test-kit cases through a reader.")
     parser.add_argument("--reader", choices=sorted(READERS), default="reference")
@@ -123,6 +132,12 @@ def main() -> int:
         return 2
     if not names:
         print("run: no cases found; nothing was checked.", file=sys.stderr)
+        return 2
+    unbased = [n for n in names if not _has_basis(CASES / n)]
+    if unbased:
+        print(f"run: {', '.join(unbased)} name no document their expected answer follows "
+              "(basis.json with answer_follows.document and .url); nothing was checked.",
+              file=sys.stderr)
         return 2
     reader = READERS[args.reader]
     wrong = []
