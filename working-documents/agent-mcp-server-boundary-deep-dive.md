@@ -1,8 +1,8 @@
 # Agent → MCP Server Boundary Deep-Dive
 
-**Status:** Revised pass addressing WG review on PR #32, ready for re-review
+**Status:** Requirements-and-gaps pass, reworked for the chair review of 2026-09-26; ready for re-review
 
-**Last updated:** 2026-09-13
+**Last updated:** 2026-09-28
 
 **Owner:** Empire Labs Pty Ltd (Security Division), per [issue #29](https://github.com/aaif/wg-observability-and-traceability/issues/29)
 
@@ -22,7 +22,10 @@ This pass identifies:
 - which gaps are properties of the boundary as a whole rather than fields within it; and
 - which remaining gaps should be coordinated with existing standards efforts rather than solved here.
 
-MCP is now hosted by AAIF under the Linux Foundation ([PRIOR-WORK.md](./PRIOR-WORK.md)). Claims in this document cite primary references: the MCP specification, the OpenTelemetry GenAI semantic conventions, and the published specifications of any candidate implementation named. Candidate implementations appear in Section 5 as material for evaluation. Their inclusion is a contribution for the WG to assess, not a statement of WG preference, and no preference should be inferred from ordering or emphasis.
+MCP is now hosted by AAIF under the Linux Foundation ([PRIOR-WORK.md](./PRIOR-WORK.md)).
+
+This pass states requirements and gaps at the boundary. It does not name, recommend or evaluate any specific implementation, and no project is named except where the Working Group has independently selected one. The worked scenario in Section 5 is generic for that reason: it is written to hold for any implementation that satisfies the field table.
+
 ## 2. Boundary description
 
 The reference shape:
@@ -96,7 +99,7 @@ The E0→E4 ladder in the model states what each rung requires; it does not stat
 
 > A consumer MUST NOT report a record at a grade whose required properties it has not itself re-derived from the record and from the external parties those properties name.
 
-Raised in review by [@astrogilda](https://github.com/astrogilda) (2026-09-13), and proposed for placement with the ladder in [the model (PR #25)](https://github.com/aaif/wg-observability-and-traceability/pull/25). The companion fixture pair — two records identical in every producer-authored field, where the externally issued material verifies in one and fails in the other — is a natural fit for the kit in [issue #42](https://github.com/aaif/wg-observability-and-traceability/issues/42), which the reviewer named above has taken on; the pair itself is theirs to file there.
+Raised in review by [@astrogilda](https://github.com/astrogilda) (2026-09-13), and proposed for placement with the ladder in [the model (PR #25)](https://github.com/aaif/wg-observability-and-traceability/pull/25). The companion fixture pair — two records identical in every producer-authored field, where the externally issued material verifies in one and fails in the other — is a natural fit for the kit in [issue #42](https://github.com/aaif/wg-observability-and-traceability/issues/42), which the reviewer named above has taken on and filed as [PR #57](https://github.com/aaif/wg-observability-and-traceability/pull/57).
 ## 4. Coverage summary
 
 Covered at protocol level: identity fields that are session-scoped (client and server info, negotiated version, session ID), request/response correlation, session lifecycle states, outcome presence and error flag, and the authorization mechanism.
@@ -111,29 +114,20 @@ Covered at telemetry level: client/server span correlation, method names, sessio
 4. **Consent-chain observability (Security).** The authorization mechanism is specified; recording granted scope against used scope is not, so consent is observable at grant time only.
 5. **Session and request lifecycle conflation (Lifecycle).** Current instrumentation does not reliably separate session-scoped facts from per-request outcomes, and per-request stages (queued, handling, streaming) are indistinguishable.
 
-## 5. Worked example: candidate implementation to evaluate
+## 5. Worked scenario
 
-The following is **one candidate implementation offered for evaluation**, not a recommended one. It is named because the gaps above need a demonstration that they are closable, and any equivalent implementation should be assessed against the same field table.
+The gaps above are easier to read as one scenario. It is deliberately generic: it names no product, and every fact in it is available from the protocol or from the existing telemetry conventions, so it holds for any implementation that satisfies the field table in Section 3.
 
-[mcp-evidence-validator](https://github.com/narko4u/mcp-evidence-validator) is an Apache-2.0 reference implementation mapped to the matrix as follows:
+A client opens a session with a server and negotiates version and capabilities (Section 2.1). The server publishes a tool contract: a name, an input schema, an annotation that the tool is read-only, and a required scope. The client caches the contract and calls the tool.
 
-1. **Captures declarations** — the tool schemas, annotations, and permissions a server publishes (Provenance: manifest source and contract hash).
-2. **Observes invocations** — tool calls, argument shapes, and contract hashes seen at runtime (Outcome, Context), under the capture qualifications in §3.2.
-3. **Compares declared against observed** — whether a declared annotation is still bound, whether the contract mutated since declaration, whether privilege use stayed inside the declared scope (the §3.1 comparison).
-4. **Records results in an integrity-protected ledger** — each check result is committed to a SHA-256 hash chain, so altering an earlier record invalidates every record after it (the §3.1 evidence-integrity property).
+1. **Session and request are instrumented separately.** The session carries `clientInfo`, `serverInfo`, negotiated version and session ID. The request carries its parameters, its request ID and trace context. A session can stay healthy while a request stalls, is retried or fails, so a session-level reading is a wrong answer to a request-level question.
+2. **The response is observable, the effect is not.** The client sees a result and `isError: false`. What the server changed while producing that result, whether it touched files, APIs, resources or downstream systems, is not carried back at all, so the observed half of the boundary is incomplete by construction rather than by a gap in instrumentation.
+3. **Declaration and use are observed by different parties.** The client knows which tool it called and which scope it granted. It does not know which revision of the contract the server is serving, and it does not know which scope the call exercised. Both facts exist, neither is carried in a form the client can bind to the call.
+4. **The stale declaration.** The read-only annotation was accurate when the contract was published. Later the contract gains a mutating operation and the client keeps applying the cached annotation, so a consumer reading the client's record sees a read-only tool performing writes. Nothing in the record marks the moment the declaration became stale.
+5. **Nothing above is verifiable afterwards.** Even where a field is captured correctly, an environment-derived telemetry record is a trusted runtime observation rather than a record whose integrity survives the component that wrote it. The result is a set of claims about the boundary rather than evidence about it.
 
-Concrete scenario: a server declares `readOnlyHint: true` on a tool and later its contract gains a mutating operation. A client that caches the original annotation keeps treating the tool as read-only while the server now accepts writes. The validator detects the contract-hash mismatch at the next invocation and records the divergence: the client holds a tamper-evident record that the declaration it relied on was stale as of a specific invocation. This is the "annotation can be accurate at declaration time and silently stale minutes later" failure mode.
+Every gap in Section 4 appears in this scenario as a missing carrier rather than a missing concept. What the WG decides is where each missing half is carried: a protocol extension, a telemetry attribute, or an out-of-band record whose integrity is verifiable after the fact (Section 3.1).
 
-The same pattern generalizes across the field table: any field can be recorded as a claim, and the integrity property is what makes the set auditable afterwards.
-
-### 5.1 The declared side: candidate declaration-layer specifications
-
-The declared-versus-observed comparison needs a standard way to express what a component declares. Two published specifications are offered here as **candidate declaration-layer implementations for the WG to evaluate**; both are published by the same contributor as this document (Empire Labs), which is disclosed so the WG can weight them accordingly, and no WG preference should be inferred from their inclusion:
-
-- **[ACI](https://github.com/narko4u/aci-spec)** (Agent Communication Interface, CC BY 4.0 / MIT) — a manifest format for declaring identity, capabilities, permissions, and provenance in machine-readable form. As a candidate carrier it would give the Identity, Provenance, and declared Security fields a publishable shape that can be pinned and hash-checked.
-- **[AIP](https://github.com/narko4u/aip-spec)** — interaction contracts and negotiation flows above ACI: parties, permitted transitions, and the relationship between them (delegation, invocation, subscription). As a candidate carrier it would give the Lifecycle and Relationship fields a declared form, against which deviations are observable events.
-
-Both have public implementations (`aci-validate`, a Go module) and published conformance material. Whether the declared layer should be carried by a manifest format, by protocol-level extension fields, or by something already in flight elsewhere in AAIF is an open question for the WG (Section 7), and the answer may differ per field.
 ## 6. Recommendations
 
 Ordered by coordination effort, per the charter's coordinate-first principle:
@@ -142,7 +136,7 @@ Ordered by coordination effort, per the charter's coordinate-first principle:
    - OTel GenAI SIG: a session event signal distinct from per-request spans, plus per-request stage attribution (closes Lifecycle gap 5).
    - OTel GenAI SIG: contract-hash and declared-versus-observed attributes on MCP spans, carrying the §3.1 comparison (closes gaps 1 and 3 partially).
    - AGNTCY Observe / A2A: consent-chain observability, granted scope against used scope (closes gap 4).
-   - [Issue #42](https://github.com/aaif/wg-observability-and-traceability/issues/42)'s kit: the §3.3 fixture pair and re-derivation checks.
+   - [Issue #42](https://github.com/aaif/wg-observability-and-traceability/issues/42)'s kit, which now takes the §3.3 fixture pair in [PR #57](https://github.com/aaif/wg-observability-and-traceability/pull/57): re-derivation checks.
 2. **Record the two cross-cutting properties in the model, not in the field table.** Evidence integrity (§3.1) and declared-versus-observed reconciliation apply to every boundary and should appear as properties of the model with clear scope, so the per-boundary tables stay about fields.
 3. **Add the review's distinctions to the matrix template.** Field semantics, propagation carrier, and implementation coverage should be separate columns in every filled pass, so a row cannot imply that an understood field has a working carrier.
 4. **Conformance checklist candidates** (matrix Section 7.2): is the server manifest pinned? is annotation binding verified at runtime? is an integrity-protected record produced for boundary observations? is the capture policy attributed on the record? are session-scoped and request-scoped outcomes reported separately?
@@ -152,7 +146,7 @@ Ordered by coordination effort, per the charter's coordinate-first principle:
 1. Where do the two cross-cutting properties live in the model — a properties section, or annotated per boundary?
 2. Does the capture qualification set in §3.2 belong in the model (applying to every boundary that captures payloads), or only in per-boundary passes?
 3. Should the Agent → Human (HITL) boundary be added to the seed matrix? It was proposed in the [PR #25](https://github.com/aaif/wg-observability-and-traceability/pull/25) matrix comment — approval, rejection, and escalation events are observability-critical for accountability.
-4. Should the Timing column be added to the seed matrix? Section 5 of the draft lists timing among the fields, but the table omits the column.
+4. Should the Timing column be added to the seed matrix? Section 5 of the model draft lists timing among the fields, but the table omits the column.
 5. For the declared half of the comparison, what carrier should the WG prefer: a manifest format, protocol-level extension fields, or an existing in-flight AAIF work item? The answer may differ per field.
 6. Is the declared-versus-observed gap genuinely unsolved elsewhere, or is a vendor already handling it that the landscape refresh should capture?
 
@@ -160,5 +154,5 @@ Ordered by coordination effort, per the charter's coordinate-first principle:
 
 1. WG leads review this revision on the call or async, alongside the unresolved questions in Section 7.
 2. Once the cross-cutting properties are placed, fold the filled row into [the model (PR #25)](https://github.com/aaif/wg-observability-and-traceability/pull/25) rather than keeping a parallel copy.
-3. Reconcile §3.3 with [issue #42](https://github.com/aaif/wg-observability-and-traceability/issues/42)'s kit once its fixture pair lands: two records identical in every producer-authored field, where the externally issued material verifies in one and fails in the other.
+3. Reconcile §3.3 with [PR #57](https://github.com/aaif/wg-observability-and-traceability/pull/57), which files the fixture pair for [issue #42](https://github.com/aaif/wg-observability-and-traceability/issues/42)'s kit: two records identical in every producer-authored field, where the externally issued material verifies in one and fails in the other.
 4. Carry the coordinate-first asks in Section 6 to OTel GenAI SIG and AGNTCY Observe.
