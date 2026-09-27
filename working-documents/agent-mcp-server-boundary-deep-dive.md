@@ -24,7 +24,7 @@ This pass identifies:
 
 MCP is now hosted by AAIF under the Linux Foundation ([PRIOR-WORK.md](./PRIOR-WORK.md)).
 
-This pass states requirements and gaps at the boundary. It does not name, recommend or evaluate any specific implementation, and no project is named except where the Working Group has independently selected one. The worked scenario in Section 5 is generic for that reason: it is written to hold for any implementation that satisfies the field table.
+This pass states requirements and gaps at the boundary. It does not name, recommend or evaluate any specific implementation. No project is named except where the Working Group has independently selected one. The worked scenario in Section 5 is generic for that reason: it is written to hold for any implementation that satisfies the field table.
 
 ## 2. Boundary description
 
@@ -118,7 +118,7 @@ Covered at telemetry level: client/server span correlation, method names, sessio
 
 The gaps above are easier to read as one scenario. It is deliberately generic: it names no product, and every fact in it is available from the protocol or from the existing telemetry conventions, so it holds for any implementation that satisfies the field table in Section 3.
 
-A client opens a session with a server and negotiates version and capabilities (Section 2.1). The server publishes a tool contract: a name, an input schema, an annotation that the tool is read-only, and a required scope. The client caches the contract and calls the tool.
+A client opens a session with a server and negotiates version and capabilities (Section 2.1). The server publishes a tool contract carrying four things: a name, an input schema, a required scope and an annotation marking the tool read-only. The client caches the contract and calls the tool.
 
 1. **Session and request are instrumented separately.** The session carries `clientInfo`, `serverInfo`, negotiated version and session ID. The request carries its parameters, its request ID and trace context. A session can stay healthy while a request stalls, is retried or fails, so a session-level reading is a wrong answer to a request-level question.
 2. **The response is observable, the effect is not.** The client sees a result and `isError: false`. What the server changed while producing that result, whether it touched files, APIs, resources or downstream systems, is not carried back at all, so the observed half of the boundary is incomplete by construction rather than by a gap in instrumentation.
