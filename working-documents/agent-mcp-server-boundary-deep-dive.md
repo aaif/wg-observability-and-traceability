@@ -4,8 +4,6 @@
 
 **Last updated:** 2026-09-28
 
-**Owner:** Empire Labs Pty Ltd (Security Division), per [issue #29](https://github.com/aaif/wg-observability-and-traceability/issues/29)
-
 **Inputs:** [cross-boundary observability model (PR #25)](https://github.com/aaif/wg-observability-and-traceability/pull/25), [PRIOR-WORK.md](./PRIOR-WORK.md), the [MCP specification (2026-07-28)](https://modelcontextprotocol.io/specification/2026-07-28), and the [OpenTelemetry GenAI semantic conventions](https://github.com/open-telemetry/semantic-conventions-genai)
 
 ## 1. Purpose
@@ -95,11 +93,12 @@ Any capture of request or result payloads under Context and Outcome is subject t
 
 ### 3.3 Evidence grades are established by the consumer, not the producer
 
-The E0→E4 ladder in the model states what each rung requires; it does not state who establishes the rung. If a consumer reads a grade off a record and repeats it, the grade is a producer claim about the producer's own evidence and carries no independent weight. One normative line therefore belongs next to the ladder:
+An evidence grade states what a record must demonstrate to be read at that level; it does not state who establishes the level. If a consumer reads a grade off a record and repeats it, the grade is a producer claim about the producer's own evidence and carries no independent weight. One normative line therefore belongs wherever the grades are defined:
 
 > A consumer MUST NOT report a record at a grade whose required properties it has not itself re-derived from the record and from the external parties those properties name.
 
-Raised in review by [@astrogilda](https://github.com/astrogilda) (2026-09-13), and proposed for placement with the ladder in [the model (PR #25)](https://github.com/aaif/wg-observability-and-traceability/pull/25). The companion fixture pair — two records identical in every producer-authored field, where the externally issued material verifies in one and fails in the other — is a natural fit for the kit in [issue #42](https://github.com/aaif/wg-observability-and-traceability/issues/42), which the reviewer named above has taken on and filed as [PR #57](https://github.com/aaif/wg-observability-and-traceability/pull/57).
+The companion fixture pair, two records identical in every producer-authored field where the externally issued material verifies in one and fails in the other, is a natural fit for the kit in [issue #42](https://github.com/aaif/wg-observability-and-traceability/issues/42). The pair is filed as [PR #57](https://github.com/aaif/wg-observability-and-traceability/pull/57).
+
 ## 4. Coverage summary
 
 Covered at protocol level: identity fields that are session-scoped (client and server info, negotiated version, session ID), request/response correlation, session lifecycle states, outcome presence and error flag, and the authorization mechanism.
