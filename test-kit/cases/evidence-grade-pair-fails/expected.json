@@ -1,6 +1,8 @@
 {
   "action": "P1",
-  "effect": "unconfirmed",
-  "confirmed_tickets": null,
-  "externally_verified": false
+  "effect": "confirmed",
+  "confirmed_tickets": [
+    "T-1042"
+  ],
+  "receipt_signature_verified": false
 }
