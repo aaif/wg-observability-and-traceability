@@ -1,0 +1,62 @@
+name: Monthly issue and PR metrics
+
+# Counts issues and pull requests for the previous month and opens an issue
+# with the report, labeled monthly-report, for the TC report.
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 12 1 * *"
+
+permissions:
+  contents: read
+
+jobs:
+  metrics:
+    name: Monthly metrics
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      pull-requests: read
+    steps:
+      - name: Previous month date range
+        shell: bash
+        run: |
+          first_day=$(date -d "last month" +%Y-%m-01)
+          last_day=$(date -d "$first_day +1 month -1 day" +%Y-%m-%d)
+          echo "last_month=$first_day..$last_day" >> "$GITHUB_ENV"
+          echo "month_label=$(date -d "$first_day" +%Y-%m)" >> "$GITHUB_ENV"
+
+      - name: Issue metrics
+        uses: github-community-projects/issue-metrics@a7dc2fb675661e208d4fc6fa321a6b95fc4a06f9 # v5.0.2
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SEARCH_QUERY: "repo:${{ github.repository }} is:issue updated:${{ env.last_month }}"
+          REPORT_TITLE: "Issues"
+          OUTPUT_FILE: issues.md
+
+      - name: Pull request metrics
+        uses: github-community-projects/issue-metrics@a7dc2fb675661e208d4fc6fa321a6b95fc4a06f9 # v5.0.2
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SEARCH_QUERY: "repo:${{ github.repository }} is:pr updated:${{ env.last_month }}"
+          REPORT_TITLE: "Pull requests"
+          OUTPUT_FILE: pull_requests.md
+
+      - name: Combine reports
+        shell: bash
+        run: |
+          {
+            echo "Activity for ${month_label} (items created or updated during the month)."
+            echo
+            cat issues.md
+            echo
+            cat pull_requests.md
+          } > report.md
+
+      - name: Open report issue
+        uses: peter-evans/create-issue-from-file@fca9117c27cdc29c6c4db3b86c48e4115a786710 # v6.0.0
+        with:
+          title: "Metrics: ${{ env.month_label }}"
+          content-filepath: ./report.md
+          labels: monthly-report
+          token: ${{ secrets.GITHUB_TOKEN }}
