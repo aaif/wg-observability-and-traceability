@@ -4,5 +4,5 @@
   "confirmed_tickets": [
     "T-1042"
   ],
-  "externally_verified": true
+  "receipt_signature_verified": true
 }
