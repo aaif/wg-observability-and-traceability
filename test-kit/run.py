@@ -5,9 +5,10 @@ Every case under test-kit/cases/ holds an OTLP/JSON trace export and the answer 
 correct reader must derive from it. Two readers ship here:
 
 - `reference` derives everything from the records and the external party's key.
-  It counts a ticket as created only on a receipt the test service signed,
-  counts one receipt id once however often it is delivered, and reports a
-  missing receipt as `unconfirmed`, never as "not created".
+  It correlates a service receipt to the action, counts each receipt id once,
+  and reports a missing receipt as `unconfirmed`, never as "not created".
+  For cases that ask about a signature, it verifies the service's signature
+  separately from the correlation answer.
 - `naive` reads the answer off what the producer wrote: it counts receipt spans
   and repeats the agent's own `evidence.externally_verified` claim. It exists to
   be wrong. `--reader naive --expect-fail` passes only when the naive reader
@@ -86,36 +87,45 @@ def _verifies(key, attrs: dict) -> bool:
     return True
 
 
-def reference(export: dict, action: str, key) -> dict:
+def reference(export: dict, action: str, key, checks: tuple[str, ...]) -> dict:
     receipts = [a for svc, a in spans(export)
                 if svc == SERVICE and a.get("receipt.action_id") == action]
-    verified = {a["receipt.id"]: a["receipt.ticket_id"] for a in receipts if _verifies(key, a)}
-    if not verified:
-        return {"action": action, "effect": "unconfirmed", "confirmed_tickets": None,
-                "externally_verified": False}
-    return {"action": action, "effect": "confirmed",
-            "confirmed_tickets": sorted(set(verified.values())), "externally_verified": True}
+    observed = {a["receipt.id"]: a["receipt.ticket_id"] for a in receipts}
+    answer = {"action": action, "effect": "confirmed" if observed else "unconfirmed",
+              "confirmed_tickets": sorted(set(observed.values())) if observed else None}
+    if "receipt_signature" in checks:
+        answer["receipt_signature_verified"] = bool(receipts) and all(
+            _verifies(key, a) for a in receipts)
+    return answer
 
 
-def naive(export: dict, action: str, _key) -> dict:
+def naive(export: dict, action: str, _key, checks: tuple[str, ...]) -> dict:
     receipts = [a for _svc, a in spans(export) if a.get("receipt.action_id") == action]
     claimed = any(a.get("evidence.externally_verified") for _svc, a in spans(export)
                   if a.get("action.id") == action)
-    return {"action": action, "effect": "confirmed" if claimed else "not created",
-            "confirmed_tickets": [a["receipt.ticket_id"] for a in receipts] or [],
-            "externally_verified": claimed}
+    answer = {"action": action, "effect": "confirmed" if claimed else "not created",
+              "confirmed_tickets": [a["receipt.ticket_id"] for a in receipts] or []}
+    if "receipt_signature" in checks:
+        answer["receipt_signature_verified"] = claimed
+    return answer
 
 
 READERS = {"reference": reference, "naive": naive}
 
 
-def _has_basis(case: Path) -> bool:
-    """Whether a case names the document its expected answer follows."""
+def _checks(case: Path) -> tuple[str, ...] | None:
+    """Read the checks and their source without opening the expected answer."""
     try:
-        follows = json.loads((case / "basis.json").read_text())["answer_follows"]
+        basis = json.loads((case / "basis.json").read_text())
+        follows = basis["answer_follows"]
+        checks = basis["checks"]
     except (OSError, ValueError, KeyError, TypeError):
-        return False
-    return bool(follows.get("document")) and bool(follows.get("url"))
+        return None
+    if not follows.get("document") or not follows.get("url"):
+        return None
+    if checks not in (["effect_correlation"], ["effect_correlation", "receipt_signature"]):
+        return None
+    return tuple(checks)
 
 
 def main() -> int:
@@ -133,10 +143,11 @@ def main() -> int:
     if not names:
         print("run: no cases found; nothing was checked.", file=sys.stderr)
         return 2
-    unbased = [n for n in names if not _has_basis(CASES / n)]
+    case_checks = {n: _checks(CASES / n) for n in names}
+    unbased = [n for n, checks in case_checks.items() if checks is None]
     if unbased:
-        print(f"run: {', '.join(unbased)} name no document their expected answer follows "
-              "(basis.json with answer_follows.document and .url); nothing was checked.",
+        print(f"run: {', '.join(unbased)} has no usable basis.json "
+              "(answer_follows.document, .url and checks); nothing was checked.",
               file=sys.stderr)
         return 2
     reader = READERS[args.reader]
@@ -144,7 +155,8 @@ def main() -> int:
     for name in names:
         case = CASES / name
         expected = json.loads((case / "expected.json").read_text())
-        got = reader(json.loads((case / "records.otlp.json").read_text()), expected["action"], key)
+        got = reader(json.loads((case / "records.otlp.json").read_text()), expected["action"],
+                     key, case_checks[name])
         ok = got == expected
         print(f"{'ok  ' if ok else 'DIFF'} {name}" + ("" if ok else f"\n     expected {expected}\n     got      {got}"))
         if not ok:

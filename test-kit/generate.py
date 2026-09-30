@@ -128,7 +128,7 @@ ISSUE_42 = {
     "url": "https://github.com/aaif/wg-observability-and-traceability/issues/42",
     "also_stated_in": {
         "document": "Agent Behavior Trace Model shared contract, v0.7-draft (pull request #51)",
-        "section": "1. Purpose",
+        "section": "6. Interpretation rules, Effects",
         "url": "https://github.com/aaif/wg-observability-and-traceability/blob/"
         "e82abf1e58b066c586c25767edfba862c4ebd027/working-documents/AGENT-BEHAVIOR-TRACE-MODEL-CONTRACT.md",
     },
@@ -140,15 +140,18 @@ DEEP_DIVE_3_3 = {
     "41e6eacc2fc6bf783f45d873c3d01eb7dd0f9560/working-documents/agent-mcp-server-boundary-deep-dive.md",
     "outside": {
         "document": "Agent Behavior Trace Model shared contract, v0.7-draft (pull request #51)",
-        "why": "section 1 treats a service-side receipt as correlation evidence, not cryptographic "
-        "attestation, so a reader built to v0.7-draft has no rule that decides this case",
+        "why": "section 6 treats a service-side receipt as correlation evidence, not cryptographic "
+        "attestation; the signature check is outside v0.7-draft",
     },
 }
 
 
-def _basis(answer_follows: dict) -> dict:
-    """The document a case's expected answer follows, for a reader that must not read expected.json."""
-    return {"answer_follows": answer_follows}
+def _basis(answer_follows: dict, checks: list[str]) -> dict:
+    """Name the rule and checks before a reader opens expected.json."""
+    basis = {"answer_follows": answer_follows, "checks": checks}
+    if "receipt_signature" in checks:
+        basis["effect_correlation_follows"] = ISSUE_42
+    return basis
 
 
 def build() -> dict[Path, bytes]:
@@ -157,34 +160,36 @@ def build() -> dict[Path, bytes]:
         "effects-receipt-delivered-twice": (
             _export(_agent_spans(True), [_receipt("00000000000000a1", 400, "R-1"),
                                          _receipt("00000000000000a2", 900, "R-1")]),
-            {"action": "P1", "effect": "confirmed", "confirmed_tickets": ["T-1042"],
-             "externally_verified": True},
+            {"action": "P1", "effect": "confirmed", "confirmed_tickets": ["T-1042"]},
             ISSUE_42,
+            ["effect_correlation"],
         ),
         "effects-receipt-missing": (
             _export(_agent_spans(True), []),
-            {"action": "P1", "effect": "unconfirmed", "confirmed_tickets": None,
-             "externally_verified": False},
+            {"action": "P1", "effect": "unconfirmed", "confirmed_tickets": None},
             ISSUE_42,
+            ["effect_correlation"],
         ),
         "evidence-grade-pair-verifies": (
             _export(_agent_spans(True), [_receipt("00000000000000b1", 400, "R-7")]),
             {"action": "P1", "effect": "confirmed", "confirmed_tickets": ["T-1042"],
-             "externally_verified": True},
+             "receipt_signature_verified": True},
             DEEP_DIVE_3_3,
+            ["effect_correlation", "receipt_signature"],
         ),
         "evidence-grade-pair-fails": (
             _export(_agent_spans(True), [_receipt("00000000000000b1", 400, "R-7", tamper=True)]),
-            {"action": "P1", "effect": "unconfirmed", "confirmed_tickets": None,
-             "externally_verified": False},
+            {"action": "P1", "effect": "confirmed", "confirmed_tickets": ["T-1042"],
+             "receipt_signature_verified": False},
             DEEP_DIVE_3_3,
+            ["effect_correlation", "receipt_signature"],
         ),
     }
     files: dict[Path, bytes] = {}
-    for name, (records, expected, follows) in cases.items():
+    for name, (records, expected, follows, checks) in cases.items():
         files[CASES / name / "records.otlp.json"] = (json.dumps(records, indent=2) + "\n").encode()
         files[CASES / name / "expected.json"] = (json.dumps(expected, indent=2) + "\n").encode()
-        files[CASES / name / "basis.json"] = (json.dumps(_basis(follows), indent=2) + "\n").encode()
+        files[CASES / name / "basis.json"] = (json.dumps(_basis(follows, checks), indent=2) + "\n").encode()
     public = _key().public_key().public_bytes(
         serialization.Encoding.PEM, serialization.PublicFormat.SubjectPublicKeyInfo)
     files[TRUST / f"{SERVICE}.pub.pem"] = public
