@@ -55,18 +55,20 @@ Each gap in the register is classified as unsupported behavior, an agent instrum
 
 ## Likely proposals to OpenTelemetry
 
-These gaps appear across nearly every agent we surveyed, which makes them conventions questions rather than individual bugs. Each will be confirmed with captured evidence before it is proposed, and they are prioritized by how many agents and SDKs each affects and how broadly. Where OpenTelemetry already has a discussion, the WG joins it, unless that discussion has moved away from the core issue.
+We won't propose renames. Old attribute names get updated over time as the conventions settle. We'll focus on places where implementations use the same thing to mean different things, or where nobody has agreed on a meaning yet.
+
+Each gap below shows up in nearly every agent we looked at, so it's a conventions question and not one agent's bug. We'll confirm each one with captured evidence before proposing anything, and we'll start with the gaps that affect the most agents and SDKs. If OpenTelemetry already has a discussion open, we'll join it, unless it has drifted away from the problem.
 
 | Gap | Where it goes |
 | --- | --- |
 | Approvals aren't recorded in a standard way, and denied actions often look like they ran | [semantic-conventions-genai #95](https://github.com/open-telemetry/semantic-conventions-genai/issues/95), [#535](https://github.com/open-telemetry/semantic-conventions-genai/pull/535) |
-| No agreed marker for where a conversation or turn starts, and no single session key | [#356](https://github.com/open-telemetry/semantic-conventions-genai/issues/356), [#477](https://github.com/open-telemetry/semantic-conventions-genai/issues/477) |
+| Nothing marks where a conversation or turn starts, and the session key means different things in different agents (`gen_ai.conversation.id` alone is used with five meanings) | [#356](https://github.com/open-telemetry/semantic-conventions-genai/issues/356), [#477](https://github.com/open-telemetry/semantic-conventions-genai/issues/477) |
 | Sub-agents and background work can't be reliably linked to the work that started them | [#243](https://github.com/open-telemetry/semantic-conventions-genai/issues/243), [#447](https://github.com/open-telemetry/semantic-conventions-genai/pull/447), [#403](https://github.com/open-telemetry/semantic-conventions-genai/issues/403), [#445](https://github.com/open-telemetry/semantic-conventions-genai/pull/445) |
-| Usage is counted at several levels, and cost is reported under many names | [#19](https://github.com/open-telemetry/semantic-conventions-genai/issues/19) for usage; [#503](https://github.com/open-telemetry/semantic-conventions-genai/issues/503), [#443](https://github.com/open-telemetry/semantic-conventions-genai/pull/443) for cost |
-| Retries aren't visible as attempts of one logical call | [#476](https://github.com/open-telemetry/semantic-conventions-genai/issues/476), closed with an invitation to reopen given evidence |
-| The target of an external effect isn't recorded apart from the full tool arguments | No existing discussion; candidate new issue |
+| Token usage is repeated at several levels, so adding it up counts it twice or more, and cost is reported under many names | [#19](https://github.com/open-telemetry/semantic-conventions-genai/issues/19) for usage; [#503](https://github.com/open-telemetry/semantic-conventions-genai/issues/503), [#443](https://github.com/open-telemetry/semantic-conventions-genai/pull/443) for cost |
+| Retries can't be told apart from new calls | [#476](https://github.com/open-telemetry/semantic-conventions-genai/issues/476), which was closed but can be reopened with evidence |
+| The thing an action changed (a file, a command, a resource) is only recorded inside the full tool arguments | No discussion yet, so this would be a new issue |
 
-Some gaps are adoption rather than conventions. For example, trace context propagation to MCP servers is already specified, but few agents do it. Those go to the agents as instrumentation fixes.
+Some gaps are about adoption, not the conventions. For example, the conventions already say how to pass trace context to MCP servers, but few agents do it. Those fixes go to the agents themselves, starting with Goose as the reference implementation. The WG won't propose them to OpenTelemetry.
 
 ## Boundaries to keep clear
 
