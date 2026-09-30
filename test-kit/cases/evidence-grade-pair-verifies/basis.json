@@ -12,6 +12,11 @@
     "effect_correlation",
     "receipt_signature"
   ],
+  "evaluation_context": {
+    "action": "P1",
+    "service": "test-ticket-service",
+    "tenant": null
+  },
   "effect_correlation_follows": {
     "document": "Trace model: build shared tests and a contribution template (issue #42)",
     "section": "the example in the issue body",

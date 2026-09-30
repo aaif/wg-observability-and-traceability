@@ -42,6 +42,7 @@ SERVICE = "test-ticket-service"
 DISCRIMINATES = (
     "effects-receipt-delivered-twice",
     "effects-receipt-missing",
+    "effects-action-id-reused-in-another-scope",
     "evidence-grade-pair-fails",
 )
 
@@ -57,14 +58,15 @@ def _value(attr: dict):
 
 
 def spans(export: dict) -> list[tuple[str, dict]]:
-    """(service.name, attributes) for every span in an OTLP/JSON export."""
+    """Return each span's service and attributes, including its tenant scope."""
     out = []
     for block in export.get("resourceSpans", []):
         res = {a["key"]: _value(a) for a in block.get("resource", {}).get("attributes", [])}
         for scope in block.get("scopeSpans", []):
             for span in scope.get("spans", []):
                 attrs = {a["key"]: _value(a) for a in span.get("attributes", [])}
-                out.append((res.get("service.name", ""), dict(attrs, _name=span["name"])))
+                out.append((res.get("service.name", ""),
+                            dict(attrs, _name=span["name"], _tenant=res.get("tenant.id"))))
     return out
 
 
@@ -87,9 +89,12 @@ def _verifies(key, attrs: dict) -> bool:
     return True
 
 
-def reference(export: dict, action: str, key, checks: tuple[str, ...]) -> dict:
+def reference(export: dict, context: dict, key, checks: tuple[str, ...]) -> dict:
+    action = context["action"]
     receipts = [a for svc, a in spans(export)
-                if svc == SERVICE and a.get("receipt.action_id") == action]
+                if svc == context["service"] and a.get("receipt.service") == svc
+                and a["_tenant"] == context["tenant"]
+                and a.get("receipt.action_id") == action]
     observed = {a["receipt.id"]: a["receipt.ticket_id"] for a in receipts}
     answer = {"action": action, "effect": "confirmed" if observed else "unconfirmed",
               "confirmed_tickets": sorted(set(observed.values())) if observed else None}
@@ -99,7 +104,8 @@ def reference(export: dict, action: str, key, checks: tuple[str, ...]) -> dict:
     return answer
 
 
-def naive(export: dict, action: str, _key, checks: tuple[str, ...]) -> dict:
+def naive(export: dict, context: dict, _key, checks: tuple[str, ...]) -> dict:
+    action = context["action"]
     receipts = [a for _svc, a in spans(export) if a.get("receipt.action_id") == action]
     claimed = any(a.get("evidence.externally_verified") for _svc, a in spans(export)
                   if a.get("action.id") == action)
@@ -113,19 +119,26 @@ def naive(export: dict, action: str, _key, checks: tuple[str, ...]) -> dict:
 READERS = {"reference": reference, "naive": naive}
 
 
-def _checks(case: Path) -> tuple[str, ...] | None:
-    """Read the checks and their source without opening the expected answer."""
+def _case_input(case: Path) -> tuple[tuple[str, ...], dict] | None:
+    """Read the query and checks without opening the expected answer."""
     try:
         basis = json.loads((case / "basis.json").read_text())
         follows = basis["answer_follows"]
         checks = basis["checks"]
+        context = basis["evaluation_context"]
     except (OSError, ValueError, KeyError, TypeError):
         return None
     if not follows.get("document") or not follows.get("url"):
         return None
     if checks not in (["effect_correlation"], ["effect_correlation", "receipt_signature"]):
         return None
-    return tuple(checks)
+    if not isinstance(context, dict) or not isinstance(context.get("action"), str):
+        return None
+    if context.get("service") != SERVICE or "tenant" not in context:
+        return None
+    if context["tenant"] is not None and not isinstance(context["tenant"], str):
+        return None
+    return tuple(checks), context
 
 
 def main() -> int:
@@ -143,20 +156,20 @@ def main() -> int:
     if not names:
         print("run: no cases found; nothing was checked.", file=sys.stderr)
         return 2
-    case_checks = {n: _checks(CASES / n) for n in names}
-    unbased = [n for n, checks in case_checks.items() if checks is None]
+    case_inputs = {n: _case_input(CASES / n) for n in names}
+    unbased = [n for n, inputs in case_inputs.items() if inputs is None]
     if unbased:
         print(f"run: {', '.join(unbased)} has no usable basis.json "
-              "(answer_follows.document, .url and checks); nothing was checked.",
+              "(answer_follows, checks and evaluation_context); nothing was checked.",
               file=sys.stderr)
         return 2
     reader = READERS[args.reader]
     wrong = []
     for name in names:
         case = CASES / name
+        checks, context = case_inputs[name]
+        got = reader(json.loads((case / "records.otlp.json").read_text()), context, key, checks)
         expected = json.loads((case / "expected.json").read_text())
-        got = reader(json.loads((case / "records.otlp.json").read_text()), expected["action"],
-                     key, case_checks[name])
         ok = got == expected
         print(f"{'ok  ' if ok else 'DIFF'} {name}" + ("" if ok else f"\n     expected {expected}\n     got      {got}"))
         if not ok:

@@ -32,5 +32,6 @@ capability is recorded here; it is never reported as a passing case.
 
 A focused example needs only `records.otlp.json` (an OTLP/JSON trace export),
 `expected.json` (the answer a correct reader derives from it) and `basis.json`
-(the document that answer follows and the checks it asks for). It does not
+(the rule, checks and `evaluation_context`: action, service and tenant).
+Keep the expected answer outside the reader's input. The example does not
 need a complete application.

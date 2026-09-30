@@ -75,13 +75,14 @@ def receipt_payload(fields: dict) -> bytes:
     return json.dumps(fields, sort_keys=True, separators=(",", ":")).encode()
 
 
-def _receipt(span_id: str, offset_ms: int, receipt_id: str, *, tamper: bool = False) -> dict:
+def _receipt(span_id: str, offset_ms: int, receipt_id: str, *, tamper: bool = False,
+             ticket_id: str = "T-1042") -> dict:
     fields = {
         "action_id": "P1",
         "created_at": "2026-09-21T15:00:00Z",
         "receipt_id": receipt_id,
         "service": SERVICE,
-        "ticket_id": "T-1042",
+        "ticket_id": ticket_id,
     }
     signed = dict(fields, ticket_id="T-9999") if tamper else fields
     signature = base64.b64encode(_key().sign(receipt_payload(signed))).decode()
@@ -110,10 +111,13 @@ def _agent_spans(claimed_verified: bool) -> list[dict]:
     ]
 
 
-def _export(agent: list[dict], service: list[dict]) -> dict:
+def _export(agent: list[dict], service: list[dict], *, tenant: str | None = None) -> dict:
     def block(name: str, spans: list[dict]) -> dict:
+        resource = {"service.name": name}
+        if tenant is not None:
+            resource["tenant.id"] = tenant
         return {
-            "resource": {"attributes": _attrs({"service.name": name})},
+            "resource": {"attributes": _attrs(resource)},
             "scopeSpans": [{"scope": {"name": "aaif-test-kit"}, "spans": spans}],
         }
     blocks = [block(AGENT, agent)]
@@ -144,11 +148,18 @@ DEEP_DIVE_3_3 = {
         "attestation; the signature check is outside v0.7-draft",
     },
 }
+SCOPED_EFFECTS = {
+    "document": "Agent Behavior Trace Model shared contract, v0.7-draft (pull request #51)",
+    "section": "3. Identity rules, rule 4; 6. Interpretation rules, Effects",
+    "url": "https://github.com/aaif/wg-observability-and-traceability/blob/"
+    "e82abf1e58b066c586c25767edfba862c4ebd027/working-documents/AGENT-BEHAVIOR-TRACE-MODEL-CONTRACT.md",
+}
 
 
-def _basis(answer_follows: dict, checks: list[str]) -> dict:
+def _basis(answer_follows: dict, checks: list[str], tenant: str | None = None) -> dict:
     """Name the rule and checks before a reader opens expected.json."""
-    basis = {"answer_follows": answer_follows, "checks": checks}
+    basis = {"answer_follows": answer_follows, "checks": checks,
+             "evaluation_context": {"action": "P1", "service": SERVICE, "tenant": tenant}}
     if "receipt_signature" in checks:
         basis["effect_correlation_follows"] = ISSUE_42
     return basis
@@ -170,6 +181,25 @@ def build() -> dict[Path, bytes]:
             ISSUE_42,
             ["effect_correlation"],
         ),
+        "effects-ticket-id-changed": (
+            _export(_agent_spans(True),
+                    [_receipt("00000000000000c1", 400, "R-9", ticket_id="T-2088")]),
+            {"action": "P1", "effect": "confirmed", "confirmed_tickets": ["T-2088"]},
+            ISSUE_42,
+            ["effect_correlation"],
+        ),
+        "effects-action-id-reused-in-another-scope": (
+            {"resourceSpans": (
+                _export(_agent_spans(True), [_receipt("00000000000000d1", 400, "R-9")],
+                        tenant="tenant-a")["resourceSpans"]
+                + _export(_agent_spans(True),
+                          [_receipt("00000000000000d2", 400, "R-9", ticket_id="T-2088")],
+                          tenant="tenant-b")["resourceSpans"]
+            )},
+            {"action": "P1", "effect": "confirmed", "confirmed_tickets": ["T-1042"]},
+            SCOPED_EFFECTS,
+            ["effect_correlation"],
+        ),
         "evidence-grade-pair-verifies": (
             _export(_agent_spans(True), [_receipt("00000000000000b1", 400, "R-7")]),
             {"action": "P1", "effect": "confirmed", "confirmed_tickets": ["T-1042"],
@@ -189,7 +219,9 @@ def build() -> dict[Path, bytes]:
     for name, (records, expected, follows, checks) in cases.items():
         files[CASES / name / "records.otlp.json"] = (json.dumps(records, indent=2) + "\n").encode()
         files[CASES / name / "expected.json"] = (json.dumps(expected, indent=2) + "\n").encode()
-        files[CASES / name / "basis.json"] = (json.dumps(_basis(follows, checks), indent=2) + "\n").encode()
+        tenant = "tenant-a" if name == "effects-action-id-reused-in-another-scope" else None
+        files[CASES / name / "basis.json"] = (
+            json.dumps(_basis(follows, checks, tenant), indent=2) + "\n").encode()
     public = _key().public_key().public_bytes(
         serialization.Encoding.PEM, serialization.PublicFormat.SubjectPublicKeyInfo)
     files[TRUST / f"{SERVICE}.pub.pem"] = public

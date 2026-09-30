@@ -4,7 +4,7 @@ on:
   pull_request:
     paths: ["test-kit/**", ".github/workflows/test-kit.yml"]
   push:
-    branches: [main]
+    branches: [main, "test-kit/**"]
     paths: ["test-kit/**", ".github/workflows/test-kit.yml"]
 
 permissions:
