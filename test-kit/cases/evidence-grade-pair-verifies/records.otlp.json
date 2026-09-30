@@ -1,0 +1,168 @@
+{
+  "resourceSpans": [
+    {
+      "resource": {
+        "attributes": [
+          {
+            "key": "service.name",
+            "value": {
+              "stringValue": "support-agent"
+            }
+          }
+        ]
+      },
+      "scopeSpans": [
+        {
+          "scope": {
+            "name": "aaif-test-kit"
+          },
+          "spans": [
+            {
+              "traceId": "5b8efff798038103d269b633813fc60c",
+              "spanId": "0000000000000001",
+              "parentSpanId": "",
+              "name": "invoke_agent",
+              "kind": 1,
+              "startTimeUnixNano": "1790000000000000000",
+              "endTimeUnixNano": "1790000000005000000",
+              "attributes": [
+                {
+                  "key": "conversation.id",
+                  "value": {
+                    "stringValue": "C1"
+                  }
+                },
+                {
+                  "key": "turn.id",
+                  "value": {
+                    "stringValue": "T1"
+                  }
+                }
+              ]
+            },
+            {
+              "traceId": "5b8efff798038103d269b633813fc60c",
+              "spanId": "0000000000000002",
+              "parentSpanId": "0000000000000001",
+              "name": "propose_action",
+              "kind": 1,
+              "startTimeUnixNano": "1790000000100000000",
+              "endTimeUnixNano": "1790000000105000000",
+              "attributes": [
+                {
+                  "key": "action.id",
+                  "value": {
+                    "stringValue": "P1"
+                  }
+                },
+                {
+                  "key": "action.intent",
+                  "value": {
+                    "stringValue": "create ticket for delayed order"
+                  }
+                }
+              ]
+            },
+            {
+              "traceId": "5b8efff798038103d269b633813fc60c",
+              "spanId": "0000000000000003",
+              "parentSpanId": "0000000000000001",
+              "name": "execute_tool create_ticket",
+              "kind": 1,
+              "startTimeUnixNano": "1790000000300000000",
+              "endTimeUnixNano": "1790000000305000000",
+              "attributes": [
+                {
+                  "key": "action.id",
+                  "value": {
+                    "stringValue": "P1"
+                  }
+                },
+                {
+                  "key": "tool.name",
+                  "value": {
+                    "stringValue": "create_ticket"
+                  }
+                },
+                {
+                  "key": "evidence.externally_verified",
+                  "value": {
+                    "boolValue": true
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "resource": {
+        "attributes": [
+          {
+            "key": "service.name",
+            "value": {
+              "stringValue": "test-ticket-service"
+            }
+          }
+        ]
+      },
+      "scopeSpans": [
+        {
+          "scope": {
+            "name": "aaif-test-kit"
+          },
+          "spans": [
+            {
+              "traceId": "5b8efff798038103d269b633813fc60c",
+              "spanId": "00000000000000b1",
+              "parentSpanId": "",
+              "name": "ticket.create.receipt",
+              "kind": 1,
+              "startTimeUnixNano": "1790000000400000000",
+              "endTimeUnixNano": "1790000000405000000",
+              "attributes": [
+                {
+                  "key": "receipt.id",
+                  "value": {
+                    "stringValue": "R-7"
+                  }
+                },
+                {
+                  "key": "receipt.action_id",
+                  "value": {
+                    "stringValue": "P1"
+                  }
+                },
+                {
+                  "key": "receipt.ticket_id",
+                  "value": {
+                    "stringValue": "T-1042"
+                  }
+                },
+                {
+                  "key": "receipt.created_at",
+                  "value": {
+                    "stringValue": "2026-09-21T15:00:00Z"
+                  }
+                },
+                {
+                  "key": "receipt.service",
+                  "value": {
+                    "stringValue": "test-ticket-service"
+                  }
+                },
+                {
+                  "key": "receipt.signature",
+                  "value": {
+                    "stringValue": "FzuXszGSwiHOTWjXBcEvjVSkrLthpC3A2t5Lhjv+1XkvdLdJINGqDOSmsb6xCoiXDdq00O5tZ/XzblAK0kI0Cg=="
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
