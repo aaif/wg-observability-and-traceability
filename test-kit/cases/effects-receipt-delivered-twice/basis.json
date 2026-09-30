@@ -5,8 +5,11 @@
     "url": "https://github.com/aaif/wg-observability-and-traceability/issues/42",
     "also_stated_in": {
       "document": "Agent Behavior Trace Model shared contract, v0.7-draft (pull request #51)",
-      "section": "1. Purpose",
+      "section": "6. Interpretation rules, Effects",
       "url": "https://github.com/aaif/wg-observability-and-traceability/blob/e82abf1e58b066c586c25767edfba862c4ebd027/working-documents/AGENT-BEHAVIOR-TRACE-MODEL-CONTRACT.md"
     }
-  }
+  },
+  "checks": [
+    "effect_correlation"
+  ]
 }
