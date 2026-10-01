@@ -166,6 +166,8 @@ Living documents with no updates for 6 months should be reviewed for currency or
 
 The WG coordinates regularly with other AAIF groups and external standards efforts. Cross-group work should be tracked in the repository so it is visible to contributors who are not in every meeting or chat thread.
 
+This tracking lives in [LIAISONS.md](LIAISONS.md), the liaison roster and cross-WG intake tracker.
+
 At minimum, coordination tracking should cover:
 
 - the central AAIF Taxonomy/Landscape working group
