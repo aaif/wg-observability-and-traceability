@@ -77,7 +77,6 @@ Wire-level observation of what goes between processes and machines.
 | Document | Subject | Key Insight |
 |----------|---------|-------------|
 | [wireshark.md](04-network/wireshark.md) | Wireshark | Deep packet inspection with 3000+ protocol dissectors; privilege-separated capture |
-| [mqtt.md](04-network/mqtt.md) | MQTT 5.0 | Lightweight pub/sub messaging: 2-byte wire overhead, QoS 0/1/2 delivery guarantees, session persistence for agent telemetry |
 
 ### 05 — AI Agent Observability
 
@@ -92,13 +91,6 @@ How AI agents expose their runtime behavior — the application-level telemetry 
 | [AAIF-REF-ARCH-TMLL.md](05-ai-agent-observability/AAIF-REF-ARCH-TMLL.md) | TMLL | ML-enhanced trace analysis via TSP; MCP server exposes anomaly detection to AI agents |
 | [AAIF-REF-ARCH-OTEL.md](05-ai-agent-observability/AAIF-REF-ARCH-OTEL.md) | OpenTelemetry | Vendor-neutral observability framework: traces, metrics, logs with gen_ai.* semantic conventions |
 | [AAIF-REF-ARCH-DATADOG.md](05-ai-agent-observability/AAIF-REF-ARCH-DATADOG.md) | Datadog | Full-stack SaaS platform: LLM Observability with agent/workflow/tool/llm span types |
-| [AAIF-REF-ARCH-OCSF.md](05-ai-agent-observability/AAIF-REF-ARCH-OCSF.md) | OCSF | Vendor-neutral security event schema: 8 categories, type_uid normalization, ai_operation profile for agent security correlation |
-
-## Cross-Cutting
-
-| Document | Subject | Key Insight |
-|----------|---------|-------------|
-| [best-practices.md](best-practices.md) | AAIF Tracing Best Practices | Practitioner's guide synthesized from the full collection: trace encoding through AI agent observability |
 
 ## Reading Order
 
