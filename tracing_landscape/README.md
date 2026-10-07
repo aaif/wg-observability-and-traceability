@@ -52,6 +52,11 @@ How the Linux kernel exposes its behavior — the mechanisms that make OS-level 
 | [lttng-ust.md](02-kernel-tracing/lttng-ust.md) | LTTng-UST | Userspace tracing with no kernel transition on fast path; shared-memory ring buffers |
 | [driver-tracing.md](02-kernel-tracing/driver-tracing.md) | Linux Driver Tracing | Layered driver observability: dev_dbg, dynamic debug, tracepoints, bus tracers |
 | [linux-driver-tracing.md](02-kernel-tracing/linux-driver-tracing.md) | Linux Driver Tracing (extended) | Complete mechanism catalog for driver debugging and observation |
+| [virtualization.md](02-kernel-tracing/virtualization.md) | Virtualization Tracing | Hypervisor pre-emption distorts guest timestamps; KVM/VFIO tracepoints expose stolen time and device passthrough boundaries |
+| [orchestration.md](02-kernel-tracing/orchestration.md) | Container Orchestration Tracing | CFS throttling and cgroup bandwidth limits create timing gaps invisible to application traces; scheduler tracepoints expose the truth |
+| [tracy.md](02-kernel-tracing/tracy.md) | Tracy Profiler | Hybrid frame profiler: compile-time zones + sampling, live client→server streaming, GPU/CPU/lock/memory on one timeline |
+| [sysdig.md](02-kernel-tracing/sysdig.md) | sysdig (OSS) | System-level syscall tracer on the Falco libs/drivers; records/replays `.scap`, container/k8s-enriched |
+| [falco.md](02-kernel-tracing/falco.md) | Falco | Runtime security detection: kernel syscall stream (eBPF/kmod) → YAML rules engine → prioritized alerts; sysdig's detection sibling |
 
 ### 03 — Hardware Accelerators
 
@@ -63,6 +68,7 @@ How GPU hardware and AI frameworks expose tensor operations, memory transfers, a
 | [nvidia-nsight.md](03-hardware-accelerators/nvidia-nsight.md) | NVIDIA Nsight Systems/Compute | System-wide timeline + per-kernel hardware counters via CUPTI |
 | [amd-rocprofiler.md](03-hardware-accelerators/amd-rocprofiler.md) | AMD roctracer/rocprofiler | Open-source GPU profiling: HIP/HSA API tracing, Matrix Core counters |
 | [pytorch-profiler.md](03-hardware-accelerators/pytorch-profiler.md) | PyTorch Profiler | Framework-level: Python ops → ATen → GPU kernels; Chrome Trace output |
+| [processor-tracing.md](03-hardware-accelerators/processor-tracing.md) | Intel PT / ARM ETM / AMD IBS | Hardware instruction-level tracing: <5% overhead, deterministic replay, full call-graph recovery |
 
 ### 04 — Network
 
