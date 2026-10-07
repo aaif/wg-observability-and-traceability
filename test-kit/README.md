@@ -46,9 +46,13 @@ The signature is Ed25519 over those bytes, carried in `receipt.signature` as sta
 
 The reference reader joins the service receipts to the action using mapping.md, then checks signatures only where `basis.json` asks for it. The naive reader counts receipt spans and repeats the agent's claim. CI requires the naive reader to fail each case listed as discriminating in run.py, because a case it passes separates nothing.
 
-### Recorded second-reader run
+### Current qualification
 
-[Rul1an's reader output](https://github.com/Rul1an/aaif-trace-reader/tree/c298e7d54b9892810bd643420fe395c6d22ad207/results/4a02867) was frozen before comparing the expected files at kit revision `4a02867`. Its [comparison](https://github.com/Rul1an/aaif-trace-reader/blob/5036716e05310a3e0b1be7e46a492ff030a49e8c/results/4a02867/comparison.json) matches action and effect in all four original cases, and a separate signature check matches both pair cases. Ticket IDs were unscored. Both readers applied the declared R1/R5/R6 mapping; the README already stated the outcomes. That run establishes those field matches at that revision. It does not cover the two new cases.
+The current kit has six known-answer cases. The reference reader matches every expected action, effect and ticket answer, including the distinction between an unknown ticket list (`null`) and an empty list (`[]`). The naive reader fails every declared discriminating case. Fixture regeneration checks that the recorded inputs and answers match their source. Run all three checks in the commands above.
+
+The valid and invalid signature cases remain separate from effect correlation. Both receipts correlate, while only one signature verifies under the synthetic service key. That signature does not authenticate tenant metadata or establish a real target effect. The reused-action case checks tenant scope; the changed-ticket case checks the exact ticket ID.
+
+These checks exercise the declared R1/R5/R6 mapping with known expectations. They do not establish blind evaluation, complete relationship coverage or production behavior. Runtime exports and relationship cases remain open for Task 7. WG acceptance and hosted CI execution are separate from local qualification.
 
 ## Fixtures
 
