@@ -13,7 +13,7 @@ python3 test-kit/generate.py --check                 # the fixtures match a rebu
 
 ## Cases
 
-The records follow the support workflow in the execution plan. The agent proposes creating a ticket as action P1, and the action executes. An independently instrumented test service records the creation and signs a receipt. [mapping.md](mapping.md) declares the R1, R5 and R6 link methods used by these records.
+The records follow the support workflow in the execution plan. The agent proposes creating a ticket as action P1, and the action executes. An independently instrumented test service records the creation and signs a receipt. [mapping.md](mapping.md) declares the R1, R5 and R6 link methods used by these records. [crosswalk.md](crosswalk.md) maps the evidence grades in these cases onto the E0-E4 ladder in issue #37 and the Agent Action Capsule fields.
 
 | Case | What a correct reader answers |
 | --- | --- |
