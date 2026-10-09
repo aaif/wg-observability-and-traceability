@@ -1,3 +1,6 @@
 # The runner's only third-party import, for Ed25519 verification of the test
 # service's receipts. Pinned so every run resolves the same version.
 cryptography==50.0.1
+# Conformance vectors for the observed-effect predicate that crosswalk.md maps
+# the E0-E4 grades onto. Pinned so the workflow replays one release.
+agent-evidence-vectors==0.17.5

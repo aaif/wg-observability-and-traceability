@@ -25,3 +25,5 @@ jobs:
         run: python3 test-kit/run.py
       - name: A reader that trusts the producer fails every discriminating case
         run: python3 test-kit/run.py --reader naive --expect-fail
+      - name: The evidence-grade vocabulary replays at its pinned release
+        run: agent-evidence-vectors --corpus vectors-observed-effect --report observed-effect-report.json
