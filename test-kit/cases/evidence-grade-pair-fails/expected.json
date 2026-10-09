@@ -1,0 +1,8 @@
+{
+  "action": "P1",
+  "effect": "confirmed",
+  "confirmed_tickets": [
+    "T-1042"
+  ],
+  "receipt_signature_verified": false
+}

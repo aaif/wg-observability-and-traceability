@@ -1,0 +1,30 @@
+{
+  "answer_follows": {
+    "document": "Agent to MCP Server boundary deep dive (pull request #32)",
+    "section": "3.3 Evidence grades are established by the consumer, not the producer",
+    "url": "https://github.com/aaif/wg-observability-and-traceability/blob/41e6eacc2fc6bf783f45d873c3d01eb7dd0f9560/working-documents/agent-mcp-server-boundary-deep-dive.md",
+    "outside": {
+      "document": "Agent Behavior Trace Model shared contract, v0.7-draft (pull request #51)",
+      "why": "section 6 treats a service-side receipt as correlation evidence, not cryptographic attestation; the signature check is outside v0.7-draft"
+    }
+  },
+  "checks": [
+    "effect_correlation",
+    "receipt_signature"
+  ],
+  "evaluation_context": {
+    "action": "P1",
+    "service": "test-ticket-service",
+    "tenant": null
+  },
+  "effect_correlation_follows": {
+    "document": "Trace model: build shared tests and a contribution template (issue #42)",
+    "section": "the example in the issue body",
+    "url": "https://github.com/aaif/wg-observability-and-traceability/issues/42",
+    "also_stated_in": {
+      "document": "Agent Behavior Trace Model shared contract, v0.7-draft (pull request #51)",
+      "section": "6. Interpretation rules, Effects",
+      "url": "https://github.com/aaif/wg-observability-and-traceability/blob/e82abf1e58b066c586c25767edfba862c4ebd027/working-documents/AGENT-BEHAVIOR-TRACE-MODEL-CONTRACT.md"
+    }
+  }
+}
