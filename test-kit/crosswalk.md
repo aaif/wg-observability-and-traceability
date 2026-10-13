@@ -24,7 +24,7 @@ A grade and a correlation are different results. `evidence-grade-pair-fails` cor
 
 ## Running the grade-floor checks
 
-The `agent-evidence-vectors` package carries conformance vectors for the predicate. The test-kit workflow installs it at a pinned version and replays them, so the kit and the vocabulary above are checked against the same release:
+The `agent-evidence-vectors` package carries conformance vectors for the predicate. You can install it at a pinned version and replay them, so the kit and the vocabulary above are checked against the same release:
 
 ```sh
 pip install agent-evidence-vectors==0.17.5
