@@ -1,6 +1,6 @@
 # Evidence-grade crosswalk
 
-This page maps three vocabularies for one question: how strongly does a record show that an agent's action took effect? The three are the E0-E4 evidence ladder proposed in [issue #37](https://github.com/aaif/wg-observability-and-traceability/issues/37), the Agent Action Capsule ([draft-mih-scitt-agent-action-capsule-05](https://github.com/action-state-group/agent-action-capsule/blob/91dd7f7faace7bf7091347d70056acdc52582890/spec/draft-mih-scitt-agent-action-capsule-05.md)), and the [observed-effect predicate](https://github.com/probityai/agent-evidence-vectors/blob/v0.17.5/spec/predicates/observed-effect.md) with the terms in [agent-evidence-vocabulary](https://github.com/probityai/agent-evidence-vocabulary/blob/main/vocabulary.yaml).
+This page maps three vocabularies for one question: how strongly does a record show that an agent's action took effect? The three are the E0-E4 evidence ladder proposed in [issue #37](https://github.com/aaif/wg-observability-and-traceability/issues/37), the Agent Action Capsule ([draft-mih-scitt-agent-action-capsule-05](https://github.com/action-state-group/agent-action-capsule/blob/91dd7f7faace7bf7091347d70056acdc52582890/spec/draft-mih-scitt-agent-action-capsule-05.md)), and the [observed-effect predicate](https://github.com/probityai/agent-evidence-vectors/blob/v0.17.9/spec/predicates/observed-effect.md) with the terms in [agent-evidence-vocabulary](https://github.com/probityai/agent-evidence-vocabulary/blob/main/vocabulary.yaml).
 
 All three share one rule, and the test kit checks it: the consumer derives the grade from the evidence, and a value the producer declares never raises it. Section 3.3 of the [MCP boundary deep dive](https://github.com/aaif/wg-observability-and-traceability/blob/41e6eacc2fc6bf783f45d873c3d01eb7dd0f9560/working-documents/agent-mcp-server-boundary-deep-dive.md) states it for this WG. The Capsule draft states it as "a verifier rederives each mode from the evidence present and reports any overclaim". The predicate recomputes `tier` and rejects a record that claims `authoritative` without the evidence for it.
 
@@ -27,7 +27,7 @@ A grade and a correlation are different results. `evidence-grade-pair-fails` cor
 The `agent-evidence-vectors` package carries conformance vectors for the predicate. You can install it at a pinned version and replay them, so the kit and the vocabulary above are checked against the same release:
 
 ```sh
-pip install agent-evidence-vectors==0.17.5
+pip install agent-evidence-vectors==0.17.9
 agent-evidence-vectors --corpus vectors-observed-effect
 ```
 
