@@ -15,6 +15,11 @@ correct reader must derive from it. Two readers ship here:
   gets every case marked `discriminates` wrong, which is what shows the fixtures
   can tell a reader that re-derives from one that repeats.
 
+Executable cases live only in test-kit/cases/. A contributor's source mapping lives
+in test-kit/contributions/<name>/mapping.md. The runner refuses to run while a
+fixture file (records.otlp.json, expected.json or basis.json) sits under
+contributions/, because a fixture there would never be checked.
+
 Run: python3 test-kit/run.py
      python3 test-kit/run.py --reader naive --expect-fail
 Exit 0 as expected, 1 a case came out wrong (or, with --expect-fail, right),
@@ -33,8 +38,7 @@ from cryptography.exceptions import InvalidSignature
 from cryptography.hazmat.primitives.serialization import load_pem_public_key
 
 KIT = Path(__file__).resolve().parent
-CASES = KIT / "cases"
-TRUST = KIT / "trust"
+FIXTURE_FILES = ("records.otlp.json", "expected.json", "basis.json")
 SERVICE = "test-ticket-service"
 
 #: Cases the naive reader must get wrong. Each exists to separate a reader that
@@ -141,22 +145,41 @@ def _case_input(case: Path) -> tuple[tuple[str, ...], dict] | None:
     return tuple(checks), context
 
 
+def undiscovered_fixtures(kit: Path) -> list[Path]:
+    """Return fixture files under contributions/, which the runner never reads."""
+    root = kit / "contributions"
+    if not root.is_dir():
+        return []
+    return sorted(p for p in root.rglob("*") if p.is_file() and p.name in FIXTURE_FILES)
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="Run the test-kit cases through a reader.")
     parser.add_argument("--reader", choices=sorted(READERS), default="reference")
     parser.add_argument("--expect-fail", action="store_true",
                         help="pass only if the reader gets every discriminating case wrong")
+    parser.add_argument("--kit", type=Path, default=KIT,
+                        help="kit directory holding cases/ and trust/ (default: this one)")
     args = parser.parse_args()
+    kit = args.kit.resolve()
+    cases_dir = kit / "cases"
+    stray = undiscovered_fixtures(kit)
+    if stray:
+        listed = ", ".join(str(p.relative_to(kit)) for p in stray)
+        print(f"run: fixture files under contributions/ are never checked ({listed}). "
+              "Move each example to cases/<name>/ and keep only mapping.md under "
+              "contributions/; nothing was checked.", file=sys.stderr)
+        return 2
     try:
-        key = load_pem_public_key((TRUST / f"{SERVICE}.pub.pem").read_bytes())
-        names = sorted(p.name for p in CASES.iterdir() if p.is_dir())
+        key = load_pem_public_key((kit / "trust" / f"{SERVICE}.pub.pem").read_bytes())
+        names = sorted(p.name for p in cases_dir.iterdir() if p.is_dir())
     except (OSError, ValueError) as exc:
         print(f"run: could not load the kit ({exc}); nothing was checked.", file=sys.stderr)
         return 2
     if not names:
         print("run: no cases found; nothing was checked.", file=sys.stderr)
         return 2
-    case_inputs = {n: _case_input(CASES / n) for n in names}
+    case_inputs = {n: _case_input(cases_dir / n) for n in names}
     unbased = [n for n, inputs in case_inputs.items() if inputs is None]
     if unbased:
         print(f"run: {', '.join(unbased)} has no usable basis.json "
@@ -166,7 +189,7 @@ def main() -> int:
     reader = READERS[args.reader]
     wrong = []
     for name in names:
-        case = CASES / name
+        case = cases_dir / name
         checks, context = case_inputs[name]
         got = reader(json.loads((case / "records.otlp.json").read_text()), context, key, checks)
         expected = json.loads((case / "expected.json").read_text())

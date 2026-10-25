@@ -25,3 +25,5 @@ jobs:
         run: python3 test-kit/run.py
       - name: A reader that trusts the producer fails every discriminating case
         run: python3 test-kit/run.py --reader naive --expect-fail
+      - name: A newly added wrong case is discovered and fails
+        run: python3 test-kit/test_discovery.py
