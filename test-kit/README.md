@@ -9,6 +9,7 @@ pip install -r test-kit/requirements.txt
 python3 test-kit/run.py                              # every case answers as expected
 python3 test-kit/run.py --reader naive --expect-fail # a reader that trusts the producer fails
 python3 test-kit/generate.py --check                 # the fixtures match a rebuild from the seed
+python3 test-kit/test_discovery.py                   # a new wrong case is found; a misplaced fixture is refused
 ```
 
 ## Cases
@@ -60,4 +61,4 @@ The generate.py script rebuilds each fixture from a published seed, and the key 
 
 ## Contributing a case
 
-Copy the TEMPLATE directory and follow its mapping.md. Cases for continuity, calls and retries, and approvals follow the shared contract in [issue #41](https://github.com/aaif/wg-observability-and-traceability/issues/41). The cases here need only the effect and its receipt.
+Copy `TEMPLATE/mapping.md` to `contributions/<name>/mapping.md` and fill it in. That directory holds mappings only. Put each executable example (`records.otlp.json`, `expected.json`, `basis.json`) in `cases/<name>-<case>/` and check it with `python3 test-kit/run.py`; the runner discovers every directory under `cases/`, and it refuses to run if a fixture file sits under `contributions/`. `python3 test-kit/test_discovery.py` shows both behaviours: a newly added wrong case is discovered and fails, and a misplaced fixture is refused. Cases for continuity, calls and retries, and approvals follow the shared contract in [issue #41](https://github.com/aaif/wg-observability-and-traceability/issues/41). The cases here need only the effect and its receipt.

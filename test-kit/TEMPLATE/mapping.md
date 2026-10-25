@@ -1,6 +1,6 @@
 # Source mapping: AGENT-OR-SDK-NAME
 
-Copy this directory to `test-kit/contributions/AGENT-OR-SDK-NAME/` and fill it in.
+Copy this file to `test-kit/contributions/AGENT-OR-SDK-NAME/mapping.md` and fill it in. The `contributions/` directory holds mappings only. The runner never reads it, and it refuses to run if a fixture file sits there. Executable examples go under `test-kit/cases/AGENT-OR-SDK-NAME-CASE/`, as described in "Your case" below.
 
 ## What emits each fixture field
 
@@ -35,3 +35,13 @@ A focused example needs only `records.otlp.json` (an OTLP/JSON trace export),
 (the rule, checks and `evaluation_context`: action, service and tenant).
 Keep the expected answer outside the reader's input. The example does not
 need a complete application.
+
+Put these three files in `test-kit/cases/AGENT-OR-SDK-NAME-CASE/`, then check them with:
+
+```sh
+python3 test-kit/run.py
+```
+
+The runner discovers every directory under `test-kit/cases/`. A wrong
+`expected.json` prints `DIFF AGENT-OR-SDK-NAME-CASE` and exits 1. A fixture file
+under `contributions/` stops the run with exit 2, so no example goes unchecked.
