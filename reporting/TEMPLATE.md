@@ -3,12 +3,13 @@
 
 <!--
 HOW TO USE THIS TEMPLATE
-1. Copy this file to reporting/YYYY-MM-report.md (e.g. reporting/2026-06-report.md).
+1. Copy this file to reporting/YYYY-MM-report.md (e.g. reporting/2026-06-report.md). The file name is case-sensitive.
 2. Fill in each section below. Keep it short and scannable — the TC reviews async.
-3. Open a pull request against this repo titled: [Report] <WG name> – <Month YYYY>
-4. Add the TC (or the designated TC GitHub team) as reviewers.
+3. Open a pull request against this repo titled: [Report] <YYYY-MM> (e.g. [Report] 2026-06)
+4. Add the monthly-report label, and add the TC (or the designated TC GitHub team) as reviewers.
 5. Reports are due by the last business day of the month; the review window closes 7 calendar days later.
 6. Merge once the TC signs off or the review window closes, whichever is sooner.
+See https://github.com/aaif/technical-committee/blob/main/working-groups/reporting.md for the full process.
 Delete these comments before submitting.
 -->
 
