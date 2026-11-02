@@ -47,11 +47,29 @@ Unsupported capabilities are recorded as such, rather than forced.
 | Phase | Work | Issues |
 | --- | --- | --- |
 | **1. Agree** | Agree the scope, questions, agents, and dimension coverage above | [#12](https://github.com/aaif/wg-observability-and-traceability/issues/12) (umbrella for the recommendation) and a new milestone 1 issue |
-| **2. Evidence** | A reproducible capture kit; baselines for Goose and the comparison agents; a conformance check that scores a captured run against the four questions, which anyone can run on their own agent; a shared register of observed gaps, each linked to the evidence that exposed it | [#46](https://github.com/aaif/wg-observability-and-traceability/issues/46), [#40](https://github.com/aaif/wg-observability-and-traceability/issues/40), plus new issues for the comparison agents and the gap register |
+| **2. Evidence** | A scaffold for the conformance kit (see [How to contribute](#how-to-contribute)); a reproducible capture kit; baselines for Goose and the comparison agents; a conformance check that scores a captured run against the four questions, which anyone can run on their own agent; a shared register of observed gaps, each linked to the evidence that exposed it | [#46](https://github.com/aaif/wg-observability-and-traceability/issues/46), [#40](https://github.com/aaif/wg-observability-and-traceability/issues/40), plus new issues for the scaffold, the comparison agents and the gap register |
 | **3. Interpret** | Write down only what the evidence shows we need; test cases built from real captures; two independent readers on real captures | [#41](https://github.com/aaif/wg-observability-and-traceability/issues/41), [#42](https://github.com/aaif/wg-observability-and-traceability/issues/42), [#45](https://github.com/aaif/wg-observability-and-traceability/issues/45) |
 | **4. Contribute** | Instrumentation fixes to the agents, starting with Goose; evidence-backed proposals to the OpenTelemetry GenAI SIG, each with a runnable example | [#43](https://github.com/aaif/wg-observability-and-traceability/issues/43), [#47](https://github.com/aaif/wg-observability-and-traceability/issues/47) |
 
 Each gap in the register is classified as unsupported behavior, an agent instrumentation gap, an OpenTelemetry guidance gap, or a missing convention. Phases 3 and 4 start from the register; nothing is specified ahead of the evidence. The issues will be updated to match this plan once it is agreed.
+
+## How to contribute
+
+Most contributions are a single folder of one kind, added without changing existing files.
+
+A scaffold for the conformance kit is added first. It contains the run format, the checking engine, one example of each kind of contribution listed below, and a short guide. The evidence and interpretation issues build on it.
+
+After the scaffold is in place, contributions take one of these forms:
+
+| Contribution | Requirements | Issue |
+| --- | --- | --- |
+| Adapter for an agent, SDK or gateway | A pinned version, a driver for at least one scenario, no outside network access, and output in the run format | [#46](https://github.com/aaif/wg-observability-and-traceability/issues/46) |
+| Scenario | The user's inputs, the stand-in model's script, and the expected ground truth | [#40](https://github.com/aaif/wg-observability-and-traceability/issues/40) |
+| Check | A cited source (the conventions, one of the four questions, or a WG proposal), one passing example and one failing example | [#42](https://github.com/aaif/wg-observability-and-traceability/issues/42) |
+| Gap register entry | The evidence, the kind of gap, and where the fix belongs | Gap register issue |
+| Reader | Reads only the run format, and is compared with the scenarios' expected ground truth | [#45](https://github.com/aaif/wg-observability-and-traceability/issues/45) |
+
+Work that was already offered under the earlier task list can be contributed in the same forms. For example, a test case can become a check's example, an existing reader can read the run format and be compared with a scenario's expected ground truth, and a fixture can become a check example or a gap register entry.
 
 ## Likely proposals to OpenTelemetry
 
