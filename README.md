@@ -13,6 +13,7 @@ New or returning contributors can get oriented from these links:
 - [Agent Behavior Trace Model execution plan](working-documents/AGENT-BEHAVIOR-TRACE-MODEL-EXECUTION-PLAN.md) - the nine-task plan of record following the August WG discussions.
 - [Open issues](https://github.com/aaif/wg-observability-and-traceability/issues) - current work items, coordination threads, and next steps.
 - [Open pull requests](https://github.com/aaif/wg-observability-and-traceability/pulls) - documents and changes currently under review.
+- [Liaison roster](LIAISONS.md) - groups the WG coordinates with, who is involved, and open asks.
 - [Meeting minutes](meeting-minutes/) - published summaries and action items.
 - [Reporting template](reporting/TEMPLATE.md) - monthly TC reporting format.
 
