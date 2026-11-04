@@ -1,0 +1,3 @@
+# The runner's only third-party import, for Ed25519 verification of the test
+# service's receipts. Pinned so every run resolves the same version.
+cryptography==50.0.1
