@@ -1,0 +1,19 @@
+[project]
+name = "wg-toolkit"
+version = "0.1.0"
+description = "Reusable LFX MCP, Zoom transcript, and structured-output model clients for AAIF working group scripts."
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "httpx>=0.28,<1",
+    "mcp>=1.30,<2",
+    "webvtt-py>=0.5,<1",
+]
+
+[project.optional-dependencies]
+# Only needed for the Zoom recording-player transcript fallback.
+browser = ["playwright>=1.55,<2"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"

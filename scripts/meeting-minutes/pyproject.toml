@@ -1,0 +1,18 @@
+[project]
+name = "wg-meeting-minutes"
+version = "0.1.0"
+description = "Generate evidence-linked draft minutes for AAIF WG meetings (defaults to Observability & Traceability)."
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "httpx>=0.28,<1",
+    "jsonschema>=4.23,<5",
+    "truststore>=0.10,<1",
+    "wg-toolkit[browser]",
+]
+
+[tool.uv]
+package = false
+
+[tool.uv.sources]
+wg-toolkit = { path = "../wg-toolkit", editable = true }
