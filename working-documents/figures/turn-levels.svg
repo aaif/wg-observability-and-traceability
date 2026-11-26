@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 286" width="1000" height="286" role="img" aria-label="The same word turn used at three levels; the Claude Agent SDK uses it at two.">
+<defs><marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#5a6a73"/></marker>
+<marker id="arro" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#c15800"/></marker>
+<pattern id="hatch" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="6" height="6" fill="#fdf0e6"/><line x1="0" y1="0" x2="0" y2="6" stroke="#e8b48a" stroke-width="2"/></pattern></defs>
+<style>
+text{font-family:-apple-system,'Helvetica Neue',Arial,sans-serif;fill:#1c2b34;font-size:12.5px}
+.mono{font-family:Menlo,'SF Mono',monospace;font-size:11px}
+.sub{fill:#5a6a73;font-size:11.5px}
+.small{font-size:11px;fill:#5a6a73}
+.head{font-weight:600}
+.title{font-weight:600;font-size:14.5px}
+.box{fill:#f7f8fa;stroke:#8c979d}
+.new{fill:#e8f2fc;stroke:#1f6fbf;stroke-width:1.5}
+.card{fill:#ffffff;stroke:#e2e5ed}
+.line{stroke:#8c979d;stroke-width:1.5;fill:none}
+.lane{stroke:#e2e5ed;stroke-width:1}
+.dash{stroke:#5a6a73;stroke-width:1.3;fill:none;stroke-dasharray:5 3}
+.odash{stroke:#c15800;stroke-width:1.4;fill:none;stroke-dasharray:5 3}
+.frame{fill:none;stroke:#8c979d;stroke-width:1.2;stroke-dasharray:4 3}
+.bound{fill:#fbfcfd;stroke:#1f6fbf;stroke-width:1.3;stroke-dasharray:7 4}
+.end{fill:#c15800}
+.hatch{fill:url(#hatch);stroke:#c15800;stroke-width:1}
+.lbl{fill:#1f6fbf;font-weight:600;font-size:11.5px}
+.olbl{fill:#c15800;font-weight:600;font-size:11.5px}
+.pb{fill:#e8f2fc;stroke:#1f6fbf;stroke-width:1.2}
+.po{fill:#fdf0e6;stroke:#c15800;stroke-width:1.2}
+.pt{font-size:12px;font-weight:600;fill:#1c2b34}
+</style>
+<rect width="1000" height="286" fill="#ffffff"/>
+
+<text class="title" x="540" y="40">Called a “turn” by</text>
+<text class="head" x="10" y="40">Conversation</text>
+<rect class="box" x="130" y="24" width="370" height="24" rx="4"/><text class="sub" x="140" y="40">turns that share history</text>
+<line class="lane" x1="10" y1="72" x2="990" y2="72"/>
+<text class="head" x="10" y="110">Exchange</text><text class="small" x="10" y="126">one input → response</text>
+<rect class="new" x="130" y="94" width="240" height="24" rx="4"/><text class="sub" x="140" y="110">input → … → response</text>
+<rect class="new" x="380" y="94" width="120" height="24" rx="4"/><text class="sub" x="390" y="110">next input …</text>
+<line class="lane" x1="10" y1="144" x2="990" y2="144"/>
+<text class="head" x="10" y="182">Loop cycle</text><text class="small" x="10" y="198">one model call + its tools</text>
+<rect class="box" x="136" y="170" width="112" height="24" rx="4"/><text class="sub" x="146" y="186">cycle 1</text>
+<rect class="box" x="254" y="170" width="110" height="24" rx="4"/><text class="sub" x="264" y="186">cycle 2</text>
+<rect class="box" x="386" y="170" width="108" height="24" rx="4"/><text class="sub" x="396" y="186">cycle 1</text>
+<line class="lane" x1="10" y1="230" x2="990" y2="230"/>
+<text class="head" x="10" y="264">Model call</text>
+<rect class="box" x="140" y="250" width="50" height="20" rx="4"/><text class="small" x="146" y="264">model</text>
+<rect class="box" x="194" y="250" width="50" height="20" rx="4"/><text class="small" x="204" y="264">tool</text>
+<rect class="box" x="258" y="250" width="102" height="20" rx="4"/><text class="small" x="266" y="264">model</text>
+<rect class="box" x="390" y="250" width="100" height="20" rx="4"/><text class="small" x="398" y="264">model</text>
+<rect class="pb" x="540" y="94" width="61" height="24" rx="12"/><text class="pt" x="551" y="110">Codex</text><rect class="pb" x="609" y="94" width="92" height="24" rx="12"/><text class="pt" x="620" y="110">Qwen Code</text><rect class="pb" x="820" y="94" width="146" height="24" rx="12"/><text class="pt" x="831" y="110">Claude Agent SDK</text><rect class="po" x="540" y="158" width="107" height="24" rx="12"/><text class="pt" x="551" y="174">Copilot CLI</text><rect class="po" x="655" y="158" width="154" height="24" rx="12"/><text class="pt" x="666" y="174">OpenAI Agents SDK</text><rect class="po" x="820" y="158" width="146" height="24" rx="12"/><text class="pt" x="831" y="174">Claude Agent SDK</text><rect class="po" x="540" y="190" width="201" height="24" rx="12"/><text class="pt" x="551" y="206">proposed OTel attribute</text><path class="dash" d="M893 118V158"/><rect class="po" x="540" y="248" width="193" height="24" rx="12"/><text class="pt" x="551" y="264">Claude Code (end_turn)</text>
+</svg>
