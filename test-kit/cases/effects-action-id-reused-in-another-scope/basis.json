@@ -1,0 +1,15 @@
+{
+  "answer_follows": {
+    "document": "Agent Behavior Trace Model shared contract, v0.7-draft (pull request #51)",
+    "section": "3. Identity rules, rule 4; 6. Interpretation rules, Effects",
+    "url": "https://github.com/aaif/wg-observability-and-traceability/blob/e82abf1e58b066c586c25767edfba862c4ebd027/working-documents/AGENT-BEHAVIOR-TRACE-MODEL-CONTRACT.md"
+  },
+  "checks": [
+    "effect_correlation"
+  ],
+  "evaluation_context": {
+    "action": "P1",
+    "service": "test-ticket-service",
+    "tenant": "tenant-a"
+  }
+}
